@@ -13,9 +13,9 @@ export function Home() {
   const[cardDetails,setCardDetails] = useState();
 
   const cardStyle ={
-    width:'23%',
+    width:'20%',
     height:'100px',
-    borderLeft:"56px solid #148D75",
+    borderLeft:"50px solid #148D75",
     borderRadius:'20px',
      marginLeft:'1rem',
     marginTop:'2rem',
@@ -104,32 +104,32 @@ export function Home() {
            
           )} */}
           {
-            cardDetails != 'undefined' &&
+            cardDetails != undefined &&
             <div  style={{display:'flex',flexWrap:'wrap',marginTop:'2%',marginLeft:'20%'}}>
           <Card sx={cardStyle}>
                  <CardHeading text={"फार्मर्स काउन्ट"}></CardHeading>
                  <Hr />
-                 <Count text={4}></Count>
+                 <Count text={cardDetails.farmerCount}></Count>
                </Card>
           <Card sx={cardStyle}>
                  <CardHeading text={"मोबाइल ऍप  काउंट"}></CardHeading>
                  <Hr />
-                 <Count text={2}></Count>
+                 <Count text={cardDetails.mobileAppCount}></Count>
                </Card>
           <Card sx={cardStyle}>
                  <CardHeading text={"सर्व्हे काउन्ट"}></CardHeading>
                  <Hr />
-                 <Count text={9}></Count>
+                 <Count text={cardDetails.surveyCount}></Count>
                </Card>
           <Card sx={cardStyle}>
                  <CardHeading text={"टोटल पेमेंट"}></CardHeading>
                  <Hr />
-                 <Count text={576}></Count>
+                 <Count text={cardDetails.totalPayment}></Count>
                </Card>
           <Card sx={cardStyle}>
                  <CardHeading text={"टोटल रिसिव्हड पेमेंट"}></CardHeading>
                  <Hr />
-                 <Count text={576}></Count>
+                 <Count text={cardDetails.totalReceivedPayment}></Count>
                </Card>
                </div>
                 }

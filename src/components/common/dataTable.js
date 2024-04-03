@@ -23,7 +23,7 @@ function DataTable({ dataSource, columns}) {
         columns={columns}
         // loading={}
         pagination={{
-          pageSize: 10,
+          pageSize: 8,
         }}
         
       />

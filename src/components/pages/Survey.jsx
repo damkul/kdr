@@ -1,7 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Grid from '@mui/material/Grid';
-import CommonTable from '../../components/common/table';
-import {CardHeading, Paragraph,PageHeading,Hr} from '../../components/common/headings';
 import { RenderMenu } from "../structure/RenderNavigation";
 import DataTable from '../common/dataTable';
 import {get, post, put,deleteItem} from '../../context/rest';
@@ -14,11 +11,15 @@ import '../../css/table.css'
 import {capitalizeFirstLetter,validateNumbersOnly} from '../common/validations'
 import {surveyList,addSurveyPopupLabel,surveyDescriptionLabel,surveyDateLabel,kharipPikLabel,rabiPikLabel,unhaliPikLabel,updateSurveyPopupLabel,addSurveyLabel} from '../../language/marathi'
 import Popup from '../common/popup'
-
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 function Survey() {
+
+  const navigate = useNavigate();
+
   const[isDataLoaded,setIsDataLoaded] = useState(true);
   const [survey,setSurvey] = useState();
   const [searchText, setSearchText] = useState("");
@@ -34,10 +35,13 @@ function Survey() {
   const [rabiCropRate,setRabiCropRate] = useState();
   const [summerCropRate,setSummerCropRate] = useState();
   const [surveyId,setSurveyId] = useState();
+  const [errorMsg,setErrorMsg] = useState(false);
 
 
   const [currentSurvey,setCurrentSurvey] = useState();
 
+  const [isSurveyAdded, setIsSurveyAdded] = useState("");
+  const [isSurveyUpdated, setIsSurveyUpdated] = useState("");
   // validations
   const [invalidKharifCropRate,setInvalidKharifCropRate] = useState(false)
   const [invalidRabiRate,setInvalidRabiCropRate] = useState(false)
@@ -55,20 +59,30 @@ function Survey() {
     setSurveyId(survey.surveyId)
     setIsPopupOpen(true);
   };
-  const handlePrintOpenPopup = (survey) => {
-    setCurrentSurvey(survey)
-    setIsPrintPopupOpen(true);
+  const handlePrintOpenPopup = async (survey) => {
+    // setCurrentSurvey(survey)
+    // setIsPrintPopupOpen(true);
+    var result = get("admin/1/downloadbill/Shubhankar_Ingale_Resume.pdf");
   };
 
+  const handleAddPopupCancel = () => {
+    setIsAddPopupOpen(false);
+  }
+  const handleCancel = () => {
+    setIsPopupOpen(false);
+  }
   const handleClosePopup = () => {
     setIsPopupOpen(false);
+    setErrorMsg(false)
   };
   const handleClosePopupPrint = () => {
     setIsPrintPopupOpen(false);
+    setErrorMsg(false)
   };
 
   const handleCloseAddPopup = () => {
     setIsAddPopupOpen(false);
+    setErrorMsg(false)
   };
 
   useEffect(() => {
@@ -154,10 +168,10 @@ function Survey() {
  
   const FilterBySurveyDescriptionInput = (
     <Space style={{ display: "flex", justifyContent: "space-between" }}>
-      <Text>नेम</Text>
+      <Link style={{color:'#fff'}}>नेम</Link>
       <Input.Search
         placeholder="नेम"
-        enterButton={<SearchOutlined/>}
+        // enterButton={<SearchOutlined/>}
         // allowClear
         value={searchText}
         onSearch={handleSearch}
@@ -166,6 +180,12 @@ function Survey() {
       />
     </Space>
   );
+
+  function  handleClick(record) {
+    console.log(record);
+    // navigate("/surveyDetails",record.surveyId);
+    navigate("/surveyDetails", { state: record });
+  }
   const columns = [
     {
       // title: FilterByNameInput,
@@ -174,9 +194,9 @@ function Survey() {
       key: "surveyDescription",
       width:"25%",
       // sorter: (a, b) => a.name > b.name,
-      render: (text) => (
+      render: (text,record) => (
         <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
+          <a href="javascript:;" onClick={() => handleClick(record)}> {text} </a>
         </Tooltip>
       ),
     },
@@ -247,24 +267,24 @@ function Survey() {
         </Space>
       ),
     },
-    {
-      title: "प्रिंट",
-      dataIndex: "surveyStatus",
-      key: "surveyStatus",
-      width: "4%",
-      // sorter: (a, b) => a.name > b.name,
-      render: (text,record) => (
-        <Tooltip title={"Survey Stage: "+text}>
+    // {
+    //   title: "प्रिंट",
+    //   dataIndex: "surveyStatus",
+    //   key: "surveyStatus",
+    //   width: "2.5%",
+    //   // sorter: (a, b) => a.name > b.name,
+    //   render: (text,record) => (
+    //     <Tooltip title={"Survey Stage: "+text}>
            
-          {/* <Text ellipsis={true}>{text}</Text> */}
-          {text >= 2 ?
-          <a href="javascript:;" onClick={() => handlePrintOpenPopup(record)}>
-            <PrinterOutlined />
-          </a>
-          : ""}
-        </Tooltip>
-      ),
-    },
+    //       {/* <Text ellipsis={true}>{text}</Text> */}
+    //       {text >= 2 ?
+    //       <a href="javascript:;" onClick={() => handlePrintOpenPopup(record)}>
+    //         <PrinterOutlined />
+    //       </a>
+    //       : ""}
+    //     </Tooltip>
+    //   ),
+    // },
   ];
  
 function handleDescriptionChange(event){
@@ -310,7 +330,6 @@ function handleSummerRateChange(event){
 
 async function handleAddFormSubmit(e) {
   e.preventDefault();
-  setSpinner(true);
   var formData = {
     surveyDescription: surveyDescription,
     surveyDate: formatDateMM(surveyDate),
@@ -320,7 +339,14 @@ async function handleAddFormSubmit(e) {
   }
 
   var result = await post('admin/1/survey',formData);
-  setSpinner(false);
+  setIsSurveyAdded(true);
+  if (result) {
+   var result = await get('admin/1/survey');
+   setSurvey(result);
+  }
+  else{
+    setErrorMsg(true);
+  }
 }
 const addSurvey = () => {
   return(
@@ -331,10 +357,9 @@ const addSurvey = () => {
         <button onClick={handleCloseAddPopup} className="btn popup-close-btn">X</button>
         </div>
         <div className="popup-body">
-        {spinner &&     
-      <Spin></Spin>
-}
-        <div className="input-container">
+        { isSurveyAdded && <div className="long-msg">सर्व्हे ऍड झाला आहे!</div>}
+        { errorMsg && <div className="long-msg error-msg">सर्व्हे ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+        <div className="input-container first">
             <label htmlFor="input2">{surveyDescriptionLabel}</label>
             <TextArea value={surveyDescription}  id="input2" rows="10" cols="15" className="form-input" onChange={handleDescriptionChange}/>
           </div>
@@ -346,24 +371,24 @@ const addSurvey = () => {
           <div className="input-container">
             <label htmlFor="input1">{kharipPikLabel}</label>
             <Input type='text' value={kharipCropRate}  id="input1" onChange={handleKharipRateChange} />
-            { invalidKharifCropRate && <span>Please neter numbers only!</span>}
+            { invalidKharifCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
           <div className="input-container">
             <label htmlFor="input1">{rabiPikLabel}</label>
             <Input type='text' value={rabiCropRate}  id="input1" onChange={handleRabiRateChange} />
-            { invalidRabiRate && <span>Please neter numbers only!</span>}
+            { invalidRabiRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
           <div className="input-container">
             <label htmlFor="input1">{unhaliPikLabel}</label>
             <Input type='text' value={summerCropRate}  id="input1" onChange={handleSummerRateChange}/>
-            { invalidSummerCropRate && <span>फक्त अंक लिहा!</span>}
+            { invalidSummerCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
           </div>
          
           <p id="success-message" className="success-message"></p>
           <div className="btn-container">
            <button type="submit" className="btn popup-btn">Save</button>
-           <button type="submit" className="btn popup-btn-sec">Cancel</button>
+           <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button>
         </div>
         </div>
    </form>
@@ -382,8 +407,15 @@ const  handleFormSubmit = async (e) => {
     surveySummerCropRate: summerCropRate
   }
   var result = await put(`admin/1/survey/${surveyId}`,formData);
-  setSpinner(false);
-  console.log("result",result);
+  
+ if (result) {
+  setIsSurveyUpdated(true);
+  var result = await get('admin/1/survey');
+  setSurvey(result);
+ }
+ else{
+  setErrorMsg(true)
+ }
 }
 
 function openPopup(){
@@ -391,6 +423,7 @@ function openPopup(){
   setIsAddPopupOpen(true);
 }
 function resetPopupForm(){
+  setErrorMsg(false);
   setSurveyDescription("");
   setSurveyDate();
   setKharipCropRate();
@@ -407,82 +440,87 @@ const updateSurvey = () => {
         <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
         </div>
         <div className="popup-body">
-        <div className="input-container">
+        { isSurveyUpdated && <div className="long-msg">सर्व्हे अपडेट झाला आहे!</div>}
+        { errorMsg && <div className="long-msg error-msg">सर्व्हे अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+        <div className="input-container first">
             <label htmlFor="input2">{surveyDescriptionLabel}</label>
             <TextArea value={surveyDescription}  id="input2" rows="10" cols="15" className="form-input" onChange={handleDescriptionChange}/>
           </div>
           <div className="input-container">
           <label htmlFor="input1">{surveyDateLabel}</label><br></br>
-            <DatePicker htmlFor="input1" size="100" onChange={(e) => setSurveyDate(e.toDate())}></DatePicker>
+            <DatePicker htmlFor="input1" size="100" onChange={(e) => setSurveyDate(e.toDate())} defaultValue={moment(surveyDate)}></DatePicker>
           </div>
           <div className="rate-container">
           <div className="input-container">
             <label htmlFor="input1">{kharipPikLabel}</label>
             <Input type='text' value={kharipCropRate}  id="input1" onChange={handleKharipRateChange} />
-            { invalidKharifCropRate && <span>Please neter numbers only!</span>}
+            { invalidKharifCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
           <div className="input-container">
             <label htmlFor="input1">{rabiPikLabel}</label>
             <Input type='text' value={rabiCropRate}  id="input1" onChange={handleRabiRateChange} />
-            { invalidRabiRate && <span>Please neter numbers only!</span>}
+            { invalidRabiRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
           <div className="input-container">
             <label htmlFor="input1">{unhaliPikLabel}</label>
             <Input type='text' value={summerCropRate}  id="input1" onChange={handleSummerRateChange}/>
-            { invalidSummerCropRate && <span>फक्त अंक लिहा!</span>}
+            { invalidSummerCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
           </div>
          
           <p id="success-message" className="success-message"></p>
           <div className="btn-container">
            <button type="submit" className="btn popup-btn">Save</button>
-           <button type="submit" className="btn popup-btn-sec">Cancel</button>
+           <button type="submit" className="btn popup-btn-sec" onClick={handleCancel}>Cancel</button>
         </div>
         </div>
       </form>
     </div>
 )}
-const printSurvey = () => {
-  return (
+
+
+
+// const printSurvey = () => {
+//   return (
       
-    <div>
-        <div className="popup-header">
-          <label>प्रिंट</label>
-        <button onClick={handleClosePopupPrint} className="btn popup-close-btn">X</button>
-        </div>
-        <div className="popup-body">
-            <table className="bill-table">
-              <thead>
-                <tr>
-                  <td colSpan={5} className="header-data  main-bill-heading">श्रीमंत मालोजीराजे पाणी वापर संस्था क्र. २<br />बाणगंगा लघु प्रकल्प तावडी कालवा <br />ता. फलटण  जि. सातारा</td>
-                </tr>
-                <tr>
-                  <td className="header-data" colSpan={3}>
-                  नाव : {"Damini Kulkarni"}<br></br> हस्ते : {"Damini Kulkarni"}
-                  </td>
-                  <td className="header-data" colSpan={3}>नं. : {111} <br></br> दिनांक  : {"26/03/2024"}</td>
-                </tr>
-                <tr>
-                  <td className="header-data">अ.नं</td>
-                  <td className="header-data">तपशील</td>
-                  <td className="header-data">क्षेत्र हेक्टर</td>
-                  <td className="header-data">दर</td>
-                  <td className="header-data">रक्कम रुपये</td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="header-data">{currentSurvey.surveyId}</td>
-                  <td className="header-data">{currentSurvey.surveyDescription}</td>
-                  <td className="header-data">{currentSurvey.surveyKharifCropRate}</td>
-                  <td className="header-data">{currentSurvey.surveyRabiCropRate}</td>
-                  <td className="header-data">{currentSurvey.surveySummerCropRate}</td>
-                </tr>
-              </tbody>
-            </table>
-        </div>
-    </div>
-)}
+//     <div>
+//         <div className="popup-header">
+//           <label>प्रिंट</label>
+//         <button onClick={handleClosePopupPrint} className="btn popup-close-btn">X</button>
+//         </div>
+//         <div className="popup-body">
+//             <table className="bill-table">
+//               <thead>
+//                 <tr>
+//                   <td colSpan={5} className="header-data  main-bill-heading">श्रीमंत मालोजीराजे पाणी वापर संस्था क्र. २<br />बाणगंगा लघु प्रकल्प तावडी कालवा <br />ता. फलटण  जि. सातारा</td>
+//                 </tr>
+//                 <tr>
+//                   <td className="header-data" colSpan={3}>
+//                   नाव : {"Damini Kulkarni"}<br></br> हस्ते : {"Damini Kulkarni"}
+//                   </td>
+//                   <td className="header-data" colSpan={3}>नं. : {111} <br></br> दिनांक  : {"26/03/2024"}</td>
+//                 </tr>
+//                 <tr>
+//                   <td className="header-data">अ.नं</td>
+//                   <td className="header-data">तपशील</td>
+//                   <td className="header-data">क्षेत्र हेक्टर</td>
+//                   <td className="header-data">दर</td>
+//                   <td className="header-data">रक्कम रुपये</td>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 <tr>
+//                   <td className="header-data">{currentSurvey.surveyId}</td>
+//                   <td className="header-data">{currentSurvey.surveyDescription}</td>
+//                   <td className="header-data">{currentSurvey.surveyKharifCropRate}</td>
+//                   <td className="header-data">{currentSurvey.surveyRabiCropRate}</td>
+//                   <td className="header-data">{currentSurvey.surveySummerCropRate}</td>
+//                 </tr>
+//               </tbody>
+//             </table>
+//         </div>
+//     </div>
+// )}
 
   return (
     <div className="page">
@@ -491,7 +529,7 @@ const printSurvey = () => {
     
      <div className="header-container" style={{marginLeft:'20%'}}>
         <div>
-            <h3>{surveyList}</h3>
+            <h3 style={{color:'white'}}>{surveyList}</h3>
         </div>
             <div className="btn-container">
               {/* <button className="btn"><i className="fa-solid fa-hourglass-half"></i> Generate Minutes</button> */}
@@ -512,12 +550,12 @@ const printSurvey = () => {
          </div>
            
           )}
-    {isPrintPopupOpen  && (
+    {/* {isPrintPopupOpen  && (
              <div className="popup-overlay">
              <Popup generateForm={printSurvey}/>
          </div>
            
-          )}
+          )} */}
    
  </div>
   )

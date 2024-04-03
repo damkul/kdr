@@ -113,13 +113,14 @@ select{
 
 .defaulter-container{
   display: flex;
+  /* justify-content: space-evenly; */
 }
 .defaulter-container .input-container{
  
-  margin-right: 20%;
+  margin-right: 10%;
 }
 .defaulter-container .input-container .date{
-  width: 20rem;
+  width: 15rem;
 }
 .defaulter-container .defaulter{
   width: 30%;
@@ -170,4 +171,25 @@ select{
 }
 .main-bill-heading{
   text-align: center;
+}
+.long-msg{
+  width: 100%;
+  padding: 0.5rem 0;
+  background-color: #1ABC9C;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+}
+.first{
+  margin-top: 2rem;
+}
+
+.validation-msg{
+    font-size: 13px;
+    color: red;
+}
+.error-msg{
+  background-color: rgb(255, 120, 120);
+  color: black;
 }

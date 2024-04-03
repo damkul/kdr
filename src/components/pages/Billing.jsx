@@ -4,10 +4,11 @@ import DataTable from '../common/dataTable';
 import { Badge,Tooltip, Space,Typography, Button,Input, DatePicker, Radio,Spin, Checkbox,Switch} from "antd";
 import { Link} from "react-router-dom";
 import { EditOutlined, DeleteOutlined} from "@ant-design/icons";
-import {get, post,put} from '../../context/rest';
+import {download, get, post,put} from '../../context/rest';
 import Popup from '../common/popup';
 import {billingList,firstNameLabel,lastNameLabel,phoneNumberLabel,dareNumberLabel,totalLandLabel,statusLabel,actionsLabel,defaulterLabel,receivedPaymentLabel,receivedPaymentDateLabel,updateBillLabel} from '../../language/marathi'
 import '../../css/table.css'
+import moment from "moment";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -18,12 +19,18 @@ const Billing = () => {
   const[isDataLoaded,setIsDataLoaded] = useState(true);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [spinner, setSpinner] = useState(false);  
+  const [isBillUpdated, setIsBillUpdated] = useState("");
+  const [errorMsg,setErrorMsg] = useState(false);
+
 
   // form fields
 const [receivedPayment,setReceivedPayment] = useState()
+const [totalPayment,setTotalPayment] = useState()
 const [receivedPaymentDate,setReceivedPaymentDate] = useState()
-const [isDefaulter,setIsDefaulter] = useState()
+const [isDefaulter,setIsDefaulter] = useState(1)
 const [billId,setBillId] = useState()
+const [fileName,setFileName] = useState()
+const [showPrintButton,setShowPrintButton] = useState(false)
 
 
 
@@ -36,12 +43,28 @@ const [billId,setBillId] = useState()
   function handleIsDefaulterChange(event){
     setIsDefaulter(event.target.value)
 }
+function formatDate(date){
+  let today = new Date(date);
+ 
+  let dd = today.getDate();
+  let mm = today.getMonth() + 1;
+
+  let yyyy = today.getFullYear();
+
+  if (dd < 10) {
+    dd = '0' + dd;
+  }
+  if (mm < 10) {
+    mm = '0' + mm;
+  }
+  today = dd + '/' + mm + '/' + yyyy;
+  return today;
+}
 
   useEffect(() => {
     async function fetchData() {
       try {
        var result = await get('admin/1/defaulter');
-       console.log("companies",result);
        setIsDataLoaded(false);
       //  document.getElementById('spin').classList.remove('loader-overlay')
         setBills(result);
@@ -54,28 +77,23 @@ const [billId,setBillId] = useState()
     fetchData();
   }, []);
 
+
+  async function printSurveyBill() {
+     setIsBillUpdated(false);
+    var res = await download(`admin/1/downloadbill/${fileName}`);
+  }
+  
   const columns = [
     {
       // title: FilterByNameInput,
-      title:"फर्स्ट नेम",
+      title:"नेम",
       dataIndex: "farmerFirstName",
       key: "farmerFirstName",
+      width:"15%",
       // sorter: (a, b) => a.name > b.name,
-      render: (text) => (
+      render: (text,record) => (
         <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
-        </Tooltip>
-      ),
-    },
-    {
-      title:"लास्ट नेम",
-      dataIndex: "farmerLastName",
-      key: "farmerLastName",
-      width:"10%",
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (text) => (
-        <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
+          <Text ellipsis={true}>{record.farmerFirstName + " " + record.farmerLastName}</Text>
         </Tooltip>
       ),
     },
@@ -92,10 +110,10 @@ const [billId,setBillId] = useState()
       ),
     },
     {
-      title: "दारे नंबर",
-      dataIndex: "farmerDhareNumber",
-      key: "farmerDhareNumber",
-      width: "8%",
+      title: "सर्व्हे",
+      dataIndex: "surveyDescription",
+      key: "surveyDescription",
+      width: "15%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
@@ -104,14 +122,51 @@ const [billId,setBillId] = useState()
       ),
     },
     {
-      title: "एकूण क्षेत्र",
-      dataIndex: "farmerTotalLand",
-      key: "farmerTotalLand",
-      width: "8%",
+      title: "गट नंबर",
+      dataIndex: "farmerGatNumber",
+      key: "farmerGatNumber",
+      width: "6%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
           <Text ellipsis={true}>{text}</Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "टोटल पेमेंट",
+      dataIndex: "totalPayment",
+      key: "totalPayment",
+      width: "6%",
+      // sorter: (a, b) => a.name > b.name,
+      render: (text) => (
+        <Tooltip title={text}>
+          <Text ellipsis={true}>{text}</Text>
+        </Tooltip>
+      ),
+    },
+    
+    {
+      title:"रिसिव्हड पेमेंट",
+      dataIndex: "receviedPayment",
+      key: "receviedPayment",
+      width:"6%",
+      // sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (text) => (
+        <Tooltip title={text}>
+          <Text ellipsis={true}>{text}</Text>
+        </Tooltip>
+      ),
+    },
+    {
+      title:"रिसिव्हड पेमेंट डेट",
+      dataIndex: "receivedPaymentDate",
+      key: "receivedPaymentDate",
+      width:"6%",
+      // sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (text) => (
+        <Tooltip title={text}>
+          <Text ellipsis={true}>{formatDate(text)}</Text>
         </Tooltip>
       ),
     },
@@ -119,11 +174,12 @@ const [billId,setBillId] = useState()
       title:"स्टेटस",
       dataIndex: "isDefaulter",
       key: "isDefaulter",
-      width: "8%",
+      width: "5%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
+          {/* <Text ellipsis={true}>{text}</Text> */}
+          { text == 1 ?  <Badge status="success" text="Active" /> :  <Badge status="error" text="In-active" />}
         </Tooltip>
       ),
     },
@@ -131,7 +187,7 @@ const [billId,setBillId] = useState()
       title:"ऍक्शन",
       dataIndex: "actions",
       key: "actions",
-      width: "8%",
+      width: "3.5%",
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="Edit">
@@ -139,14 +195,14 @@ const [billId,setBillId] = useState()
            <EditOutlined></EditOutlined>
           </a>
           </Tooltip>
-          <Tooltip title="Delete company">
+          {/* <Tooltip title="Delete company">
             <DeleteOutlined
               onClick={async () => {
               //   await deleteCompany(record.id);
               //   setCompanies(await getCompanies(sessionStorage.getItem("firmId")));
               }}
             />
-          </Tooltip>
+          </Tooltip> */}
         </Space>
       ),
     }
@@ -154,11 +210,13 @@ const [billId,setBillId] = useState()
 
 
   const handleOpenPopup = (bill) => {
-    console.log(bill);
-    setIsDefaulter(bill.isDefaulter);
+    setIsBillUpdated(false);
+    setShowPrintButton(false);
     setReceivedPayment(bill.receviedPayment);
+    setTotalPayment(bill.totalPayment);
     setReceivedPaymentDate(bill.receivedPaymentDate)
     setBillId(bill.farmerSurveyId);
+    // setFileName(bill.billFileName);
     setIsPopupOpen(true);
   };
 
@@ -169,15 +227,24 @@ const [billId,setBillId] = useState()
 
   async function handleFormSubmit(e) {
     e.preventDefault();
-    setSpinner(true);
+    if (receivedPayment == totalPayment) {
+      setIsDefaulter(2);
+    }
     var formData = {
-    receivedPayment: receivedPayment,
-    receivedPaymentDate: receivedPaymentDate,
-    isDefaulter: isDefaulter
+      receviedPayment: receivedPayment,
+      receivedPaymentDate: receivedPaymentDate,
+      isDefaulter: isDefaulter
   }
-  
     var result = await put(`admin/1/defaulter/${billId}`,formData);
-    setSpinner(false);
+    if (result) {
+      setIsBillUpdated(true);
+      setFileName(result.fileName);
+      setShowPrintButton(true);
+      var result = await get('admin/1/defaulter');
+    }
+    else{
+      setErrorMsg(true);
+    }
   }
 
 
@@ -190,27 +257,29 @@ const [billId,setBillId] = useState()
           <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
           </div>
           <div className="popup-body">
-          {spinner &&     
-        <Spin></Spin>
-  }
-          <div className="input-container">
+          { isBillUpdated && <div className="long-msg">बील अपडेट झालं आहे!</div> }
+          { errorMsg && <div className="long-msg error-msg">बील अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+            <div className="defaulter-container first">
+            <div className="input-container">
               <label htmlFor="input2">{receivedPaymentLabel}</label>
-              <Input value={receivedPayment}  id="input2" rows="10" cols="15" className="form-input" onChange={handleReceivedPaymentChange}/>
+              <Input value={receivedPayment} className="date"  onChange={handleReceivedPaymentChange}/>
             </div>
-            <div className="defaulter-container">
               <div className="input-container">
               <label htmlFor="input1">{receivedPaymentDateLabel}</label><br></br>
-              <DatePicker htmlFor="input1"  onChange={handleReceivedPaymentDateChange} className="date"></DatePicker>
+              <DatePicker htmlFor="input1"  onChange={handleReceivedPaymentDateChange} className="date" defaultValue={moment(receivedPaymentDate)}></DatePicker>
               </div>
-              <div className="input-container">
+              {/* <div className="input-container">
               <label htmlFor="input1">{defaulterLabel}</label><br></br>
                 <Switch value={isDefaulter} className="defaulter" onChange={handleIsDefaulterChange}></Switch>
-              </div>
+              </div> */}
             </div>
-            <p id="success-message" className="success-message"></p>
             <div className="btn-container">
              <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec">Cancel</button>
+             {/* <button type="submit" className="btn popup-btn-sec">Cancel</button> */}
+             {
+                showPrintButton &&  <button type="submit" className="btn popup-btn-sec" onClick={printSurveyBill}>Print</button>
+             }
+            
           </div>
           </div>
      </form>
@@ -227,7 +296,7 @@ const [billId,setBillId] = useState()
                <RenderMenu />
                <div className="header-container" style={{marginLeft:'20%'}}>
         <div>
-            <h3>{billingList}</h3>
+            <h3 style={{color:'white'}}>{billingList}</h3>
         </div>
             {/* <div className="btn-container">
                 <Link onClick={openPopup}><button className="btn"><i className="fa-solid fa-plus icon"></i>Add Member</button></Link>

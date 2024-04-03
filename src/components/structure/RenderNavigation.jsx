@@ -16,6 +16,7 @@ export const RenderRoutes = () => {
 
         const { user } = AuthData();
         
+        
         return (
              <Routes>
              { nav.map((r, i) => {
@@ -30,6 +31,8 @@ export const RenderRoutes = () => {
              </Routes>
         )
    }
+
+
    
    export const RenderMenu = () => {
    
@@ -64,12 +67,12 @@ export const RenderRoutes = () => {
           anchor="left"
         >
           <Toolbar />
-          <Avatar  onClick= {() => navigate('profile')} sx={{width:80, height:80,marginLeft:'30%', cursor:'pointer'}}/>
-          <h3 style={{marginLeft:'28%', cursor:'pointer'}} onClick= {() => navigate('profile')}>{user.name}</h3>
+          <Avatar  onClick= {() => navigate('/account')} sx={{width:80, height:80,marginLeft:'30%', cursor:'pointer'}}/>
+          <h3 style={{marginLeft:'28%', cursor:'pointer'}} onClick= {() => { navigate('/account')}}>{user.name}</h3>
           <Toolbar />
           <List>
             {nav.map((item, index) => (
-               item.name === "Login" ? "" :
+               item.name === "Login" || item.name === "sDetails" ? "" :
               <ListItem key={index}
                   onClick= {() => navigate(item.path)}
               disablePadding>

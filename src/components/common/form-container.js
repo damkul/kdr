@@ -132,7 +132,7 @@ const avatarStyle = {
             <h3>अकाउंट डिटेल्स</h3>
         </div>
         <div className='form-container'>
-            <p className="success-msg msg-hide" id="success-msg">Data Updated Successfully!</p>
+            <p className="success-msg msg-hide" id="success-msg">प्रोफाइल अपडेट झालं आहे!</p>
             <form onSubmit={(e)=> handleFormSubmit(e)}> 
             <div className="input-container">
               <label htmlFor="input2">{firstNameLabel}</label>
@@ -145,7 +145,7 @@ const avatarStyle = {
             <div className="input-container">
             <label htmlFor="input1">{phoneNumberLabel}</label><br></br>
               <Input value={phoneNumber}  onChange={handlePhoneNumberChange}></Input>
-              { contactInvalidMsg && <span>Please enter valid phone number!</span>}
+              { contactInvalidMsg && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container select-gender">
               <label htmlFor="input1">{genderLabel}</label>

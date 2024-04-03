@@ -17,7 +17,7 @@ export const capitalizeFirstLetter = (str) => {
       }
   };
   export const validateEmail = (str) => {
-    if(!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(str)){
+    if(!/[a-z0-9]+@[a-z]+\.[a-z]{2,3}/.test(str)){
         return false;
       }
       else{

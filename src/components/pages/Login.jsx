@@ -25,7 +25,7 @@ export const Login = () => {
      const { login } = AuthData();
      const { user } = AuthData();
      const [ formData, setFormData ] = useReducer((formData, newItem) => { return ( {...formData, ...newItem} )}, {userName: "", password: ""})
-     const [ errorMessage, setErrorMessage ] = useState(null)
+     const [ errorMessage, setErrorMessage ] = useState(false)
      const [showPassword, setShowPassword] = React.useState(false);
 
      const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -43,7 +43,7 @@ export const Login = () => {
 
           } catch (error) {
 
-               setErrorMessage(error)
+               setErrorMessage(true);
                
           }
           
@@ -55,10 +55,11 @@ export const Login = () => {
           <div className="login-card">
             <div   className='login-form-container'>
               <h2>{loginWord}</h2>
-              <p>Welcome to application name</p>
+              <p>Welcome to KDR</p>
+              {errorMessage && <p className='validation-msg'>युजरनेम किंवा पासवर्ड चुकीचा आहे!</p>}
               <div  className='login-form'>
-               <TextField id="outlined-basic" label={email} variant="outlined" sx={{marginTop:3,marginBottom:3,width: '38ch' }}  value={formData.userName} onChange={(e) => setFormData({userName: e.target.value}) }/>
-                <FormControl sx={{marginTop:3,marginBottom:3,width: '38ch' }} variant="outlined" value={formData.password} onChange={(e) => setFormData({password: e.target.value}) }>
+               <TextField id="outlined-basic" label={email} variant="outlined" sx={{marginTop:3,marginBottom:3,width: '30ch' }}  value={formData.userName} onChange={(e) => setFormData({userName: e.target.value}) }/>
+                <FormControl sx={{marginTop:3,marginBottom:3,width: '30ch'}} variant="outlined" value={formData.password} onChange={(e) => setFormData({password: e.target.value}) }>
                   <InputLabel htmlFor="outlined-adornment-password">{password}</InputLabel>
                   <OutlinedInput
                     id="outlined-adornment-password"
@@ -78,9 +79,9 @@ export const Login = () => {
                     label="Password"
                   />
                 </FormControl>
-                <Link href="#" underline="hover" className='forgot-password-link' sx={{fontWeight:'bold',textAlign:"right"}}>
+                {/* <Link href="#" underline="hover" className='forgot-password-link' sx={{fontWeight:'bold',textAlign:"right"}}>
                   {forgotPassword}
-                </Link>
+                </Link> */}
                 <button className="login-button" onClick={doLogin} >{loginWord}</button>
               </div>
             

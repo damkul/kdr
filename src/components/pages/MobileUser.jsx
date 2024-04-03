@@ -11,6 +11,7 @@ import '../../css/table.css'
 import Popup from '../common/popup'
 import {capitalizeFirstLetter,validateNumbersOnly,validateEmail,validatePhoneNumber} from '../common/validations'
 import { usernamelabel,addMobileUserPopupLabel,firstNameLabel,lastNameLabel,phoneNumberLabel,emailLabel,genderLabel,dobLabel,passwordLabel,updateMobileUserPopupLabel,addMobileUserLabel } from "../../language/marathi";
+import moment from "moment";
 
 const { Text } = Typography;
 
@@ -41,6 +42,11 @@ const MobileUser = () => {
 
   const [searchText, setSearchText] = useState("");
   const [initialData,setInitialData] = useState([]); 
+
+  const [isMobileUserAdded, setIsMobileUserAdded] = useState("");
+  const [isMobileUserUpdated, setIsMobileUserUpdated] = useState("");
+
+  const [errorMsg,setErrorMsg] = useState(false);
 
   function handleFirstNameChange(event){
       setFirstName(event.target.value)
@@ -118,6 +124,7 @@ const MobileUser = () => {
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
+    setIsMobileUserUpdated(false)
   };
 
   function openPopup(){
@@ -136,6 +143,7 @@ const MobileUser = () => {
    }
    const handleCloseAddPopup = () => {
     setIsAddPopupOpen(false);
+    setIsMobileUserAdded(false)
   };
 
   useEffect(() => {
@@ -168,8 +176,14 @@ const MobileUser = () => {
       mobileAppUserPassword: password
   }
   var result = await put(`admin/1/mobileappuser/${id}`,formData)
-  var res = await get('admin/1/mobileappuser');
-  setMobileUsers(res);
+      if (result) {
+        setIsMobileUserUpdated(true);
+        var res = await get('admin/1/mobileappuser');
+        setMobileUsers(res);
+      }
+      else{
+        setErrorMsg(true);
+      }
   }
 
  async function handleAddFormSubmit(e) {
@@ -184,9 +198,15 @@ const MobileUser = () => {
         mobileAppUserUserName: username,
         mobileAppUserPassword: password
     }
-    var result = await post('admin/1/mobileappuser',formData)
+    var result = await post('admin/1/mobileappuser',formData);
+   if (result) {
+    setIsMobileUserAdded(true);
     var res = await get('admin/1/mobileappuser');
     setMobileUsers(res);
+   }
+   else{
+    setErrorMsg(true);
+  }
   }
 
   const handleSearch = (searchInput) => {
@@ -205,10 +225,10 @@ const MobileUser = () => {
 
   const FilterByFirstNameInput = (
     <Space style={{ display: "flex", justifyContent: "space-between" }}>
-      <Text>नेम</Text>
+      <Text style={{color:'#fff'}}>नेम</Text>
       <Input.Search
         placeholder="नेम"
-        enterButton={<SearchOutlined/>}
+        // enterButton={<SearchOutlined  style={{color:'yellow'}}/>}
         // allowClear
         value={searchText}
         onSearch={handleSearch}
@@ -232,17 +252,6 @@ const MobileUser = () => {
         </Tooltip>
       ),
     },
-    // {
-    //   title: "लास्ट नेम",
-    //   dataIndex: "mobileAppUserLastName",
-    //   key: "mobileAppUserLastName",
-    //   width:"15%",
-    //   render: (text) => (
-    //     <Tooltip title={text}>
-    //       <Text ellipsis={true}>{text}</Text>
-    //     </Tooltip>
-    //   ),
-    // },
     {
       title: "फोन नंबर",
       dataIndex: "mobileAppUserPhoneNumber",
@@ -299,7 +308,8 @@ const MobileUser = () => {
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
+          {/* <Text ellipsis={true}>{text}</Text> */}
+          { text == 1 ?  <Badge status="success" text="Active" /> :  <Badge status="error" text="In-active" />}
         </Tooltip>
       ),
     },
@@ -349,6 +359,13 @@ const MobileUser = () => {
     return today;
   }
 
+  const handleAddPopupCancel = () => {
+    setIsAddPopupOpen(false);
+  }
+  const handleCancel = () => {
+    setIsPopupOpen(false);
+  }
+
   const addMobileUser = () =>{
     return(
       <div>
@@ -358,10 +375,9 @@ const MobileUser = () => {
           <button onClick={handleCloseAddPopup} className="btn popup-close-btn">X</button>
           </div>
           <div className="popup-body">
-          {spinner &&     
-        <Spin></Spin>
-  }
-            <div className="rate-container">
+          { isMobileUserAdded && <div className="long-msg">मोबाईल युजर ऍड झाला आहे!</div>}
+          { errorMsg && <div className="long-msg error-msg">मोबाईल युजर ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+            <div className="rate-container first">
             <div className="input-container mobile-user-input">
               <label htmlFor="input2">{firstNameLabel}</label>
               <Input value={firstName} className="form-input" onChange={handleFirstNameChange}/>
@@ -375,12 +391,12 @@ const MobileUser = () => {
               <div className="input-container mobile-user-input">
             <label htmlFor="input1">{phoneNumberLabel}</label>
               <Input value={phoneNumber} className="form-input" onChange={handlePhoneNumberChange}></Input>
-              { contactInvalidMsg && <span>फक्त अंक लिहा!</span>}
+              { contactInvalidMsg && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container mobile-user-input">
               <label htmlFor="input1">{emailLabel}</label>
               <Input type='text' value={email}  id="input1" onChange={handleEmailChange} />
-              { emailInvalidMsg && <span>बरोबर ई-मेल आयडी लिहा!</span>}
+              { emailInvalidMsg && <span className="validation-msg">बरोबर ई-मेल आयडी लिहा!</span>}
             </div>
               </div>
             <div className="rate-container">
@@ -416,7 +432,7 @@ const MobileUser = () => {
             <p id="success-message" className="success-message"></p>
             <div className="btn-container">
              <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec">Cancel</button>
+             <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button>
           </div>
           </div>
      </form>
@@ -433,10 +449,9 @@ const MobileUser = () => {
           <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
           </div>
           <div className="popup-body">
-          {spinner &&     
-        <Spin></Spin>
-  }
-            <div className="rate-container">
+          { isMobileUserUpdated && <div className="long-msg">मोबाईल युजर अपडेट झाला आहे!</div>}
+          { errorMsg && <div className="long-msg error-msg">मोबाईल युजर अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+            <div className="rate-container first">
             <div className="input-container mobile-user-input">
               <label htmlFor="input2">{firstNameLabel}</label>
               <Input value={firstName} className="form-input" onChange={handleFirstNameChange}/>
@@ -450,12 +465,12 @@ const MobileUser = () => {
               <div className="input-container mobile-user-input">
             <label htmlFor="input1">{phoneNumberLabel}</label>
               <Input value={phoneNumber} className="form-input" onChange={handlePhoneNumberChange}></Input>
-              { contactInvalidMsg && <span>फक्त अंक लिहा!</span>}
+              { contactInvalidMsg && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container mobile-user-input">
               <label htmlFor="input1">{emailLabel}</label>
               <Input type='text' value={email}  id="input1" onChange={handleEmailChange} />
-              { emailInvalidMsg && <span>बरोबर ई-मेल आयडी लिहा!</span>}
+              { emailInvalidMsg && <span className="validation-msg">बरोबर ई-मेल आयडी लिहा!</span>}
             </div>
               </div>
             <div className="rate-container">
@@ -472,7 +487,7 @@ const MobileUser = () => {
             </div>
             <div className="input-container mobile-user-input mb-usr-flx">
               <label htmlFor="input1">{dobLabel}</label>
-              <DatePicker htmlFor="input1"  onChange={handleDobChange} className="date"></DatePicker>
+              <DatePicker htmlFor="input1"  onChange={handleDobChange} className="date" defaultValue={moment(dob)}></DatePicker>
               </div>
             </div>
             
@@ -487,11 +502,9 @@ const MobileUser = () => {
               <Input type='password' value={password}  id="input1" onChange={handlePasswordChange}/>
             </div>
             </div>
-           
-            <p id="success-message" className="success-message"></p>
             <div className="btn-container">
              <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec">Cancel</button>
+             <button type="submit" className="btn popup-btn-sec" onClick={handleCancel}>Cancel</button>
           </div>
           </div>
      </form>
@@ -504,7 +517,7 @@ const MobileUser = () => {
     <RenderMenu />
     <div className="header-container" style={{marginLeft:'20%'}}>
         <div>
-            <h3>मोबाईल यूजर  लिस्ट</h3>
+            <h3 style={{color:'white'}}>मोबाईल यूजर  लिस्ट</h3>
         </div>
             <div className="btn-container">
               {/* <button className="btn"><i className="fa-solid fa-hourglass-half"></i> Generate Minutes</button> */}

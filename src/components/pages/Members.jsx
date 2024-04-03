@@ -29,6 +29,10 @@ function Members() {
   const [searchText, setSearchText] = useState("");
   const [searchLastNameText, setSearchLastNameText] = useState("");
 
+
+  const [isMemberAdded, setIsMemberAdded] = useState("");
+  const [isMemberUpdated, setIsMemberUpdated] = useState("");
+
   // Form Data
   const [firstName,setFirstName] = useState();
   const [lastName,setLastName] = useState();
@@ -41,7 +45,9 @@ function Members() {
   // validations
   const [invalidDareNumber,setInvalidDareNumber] = useState(false);
   const [invalidTotalLand,setInvalidTotalLand] = useState(false);
-  const [contactInvalidMsg,setContactInvalidMessage] = useState(false)
+  const [contactInvalidMsg,setContactInvalidMessage] = useState(false);
+  const [errorMsg,setErrorMsg] = useState(false);
+
 
 
   function handleFirstNameChange(event){
@@ -137,10 +143,10 @@ function Members() {
  
   const FilterByFirstNameInput = (
     <Space style={{ display: "flex", justifyContent: "space-between" }}>
-      <Text>नेम</Text>
+      <Text style={{color:'#fff'}}>नेम</Text>
       <Input.Search
         placeholder="नेम"
-        enterButton={<SearchOutlined/>}
+        // enterButton={<SearchOutlined/>}
         // allowClear
         value={searchText}
         onSearch={handleSearch}
@@ -164,18 +170,6 @@ function Members() {
         </Tooltip>
       ),
     },
-    // {
-    //   title: FilterByLastNameInput,
-    //   dataIndex: "farmerLastName",
-    //   key: "farmerLastName",
-    //   width:"22%",
-    //   // sorter: (a, b) => new Date(a.date) - new Date(b.date),
-    //   render: (text) => (
-    //     <Tooltip title={text}>
-    //       <Text ellipsis={true}>{text}</Text>
-    //     </Tooltip>
-    //   ),
-    // },
     {
       title: "फोन नंबर",
       dataIndex: "farmerPhoneNumber",
@@ -228,11 +222,12 @@ function Members() {
       title: "स्टेटस",
       dataIndex: "isActive",
       key: "isActive",
-      width: "8%",
+      width: "6%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
+          {/* <Text ellipsis={true}>{text}</Text> */}
+          { text == 1 ?  <Badge status="success" text="Active" /> :  <Badge status="error" text="In-active" />}
         </Tooltip>
       ),
     },
@@ -240,7 +235,7 @@ function Members() {
       title: "ऍक्शन",
       dataIndex: "actions",
       key: "actions",
-      width: "8%",
+      width: "4%",
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="Edit">
@@ -291,6 +286,8 @@ function Members() {
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
+    setIsMemberUpdated(false);
+    setErrorMsg(false)
   };
 
   function openPopup(){
@@ -298,6 +295,7 @@ function Members() {
     setIsAddPopupOpen(true);
    }
    function resetPopupForm(){
+     
       setFirstName();
       setDareNumber();
       setLastName();
@@ -307,11 +305,13 @@ function Members() {
    }
    const handleCloseAddPopup = () => {
     setIsAddPopupOpen(false);
+    setIsMemberAdded(false);
+    setErrorMsg(false)
   };
 
    async function handleAddFormSubmit(e) {
     e.preventDefault();
-    setSpinner(true);
+    // setSpinner(true);
     var formData = {
     farmerFirstName: firstName,
     farmerLastName: lastName,
@@ -322,12 +322,20 @@ function Members() {
   }
   
     var result = await post('admin/1/member',formData);
-    setSpinner(false);
+    
+    if (result) {
+      setIsMemberAdded(true);
+      var result = await get('admin/1/member');
+      setMembers(result);
+    }
+    else{
+      setErrorMsg(true)
+    }
+    // setSpinner(false);
   }
 
    async function handleFormSubmit(e) {
     e.preventDefault();
-    setSpinner(true);
     var formData = {
     farmerFirstName: firstName,
     farmerLastName: lastName,
@@ -338,7 +346,22 @@ function Members() {
   }
   
     var result = await put(`admin/1/member/${memberId}`,formData);
-    setSpinner(false);
+   
+    if (result) {
+      setIsMemberUpdated(true);
+      var result = await get('admin/1/member');
+      setMembers(result);
+    }
+    else{
+      setErrorMsg(true)
+    }
+  }
+
+  const handleAddPopupCancel = () => {
+    setIsAddPopupOpen(false);
+  }
+  const handleCancel = () => {
+    setIsPopupOpen(false);
   }
 
    const addMember = () => {
@@ -350,11 +373,9 @@ function Members() {
           <button onClick={handleCloseAddPopup} className="btn popup-close-btn">X</button>
           </div>
           <div className="popup-body">
-          {spinner &&     
-        <Spin></Spin>
-  }
-
-          <div className="input-container">
+            { isMemberAdded && <div className="long-msg">मेंबर ऍड झाला आहे!</div>}
+            { errorMsg && <div className="long-msg error-msg">मेंबर ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+          <div className="input-container first">
               <label htmlFor="input2">{firstNameLabel}</label>
               <Input value={firstName}  id="input2" rows="10" cols="15" className="form-input" onChange={handleFirstNameChange}/>
             </div>
@@ -365,29 +386,27 @@ function Members() {
             <div className="input-container">
             <label htmlFor="input1">{phoneNumberLabel}</label><br></br>
               <Input value={phoneNumber} size="100" onChange={handlePhoneNumberChange}></Input>
-              { contactInvalidMsg && <span>Please enter number only!</span>}
+              { contactInvalidMsg && <span className="validation-msg">फक्त अंक लिहा.!</span>}
             </div>
             <div className="rate-container">
             <div className="input-container">
               <label htmlFor="input1">{dareNumberLabel}</label>
               <Input type='text' value={dareNumber}  id="input1" onChange={handleDareNumberChange} />
-              { invalidDareNumber && <span>फक्त अंक लिहा.</span>}
+              { invalidDareNumber && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container">
               <label htmlFor="input1">{totalLandLabel}</label>
               <Input type='text' value={totalLand}  id="input1" onChange={handleTotalLandChange} />
-              { invalidTotalLand && <span>फक्त अंक लिहा.</span>}
+              { invalidTotalLand && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container">
               <label htmlFor="input1">{gatNumberLabel}</label>
               <Input type='text' value={gatNumber}  id="input1" onChange={handleGatNumberChange}/>
             </div>
             </div>
-           
-            <p id="success-message" className="success-message"></p>
             <div className="btn-container">
              <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec">Cancel</button>
+             <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button>
           </div>
           </div>
      </form>
@@ -404,11 +423,11 @@ function Members() {
           <label>{updateMemberPopupLabel}</label>
           <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
           </div>
+          
           <div className="popup-body">
-          {spinner &&     
-        <Spin></Spin>
-  }
-          <div className="input-container">
+          { isMemberUpdated && <div className="long-msg">मेंबर अपडेट झाला आहे!</div>}
+          { errorMsg && <div className="long-msg error-msg">मेंबर अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
+          <div className="input-container first">
               <label htmlFor="input2">{firstNameLabel}</label>
               <Input value={firstName}  id="input2" rows="10" cols="15" className="form-input" onChange={handleFirstNameChange}/>
             </div>
@@ -424,12 +443,12 @@ function Members() {
             <div className="input-container">
               <label htmlFor="input1">{dareNumberLabel}</label>
               <Input type='text' value={dareNumber}  id="input1" onChange={handleDareNumberChange} />
-              { invalidDareNumber && <span>फक्त अंक लिहा.</span>}
+              { invalidDareNumber && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container">
               <label htmlFor="input1">{totalLandLabel}</label>
               <Input type='text' value={totalLand}  id="input1" onChange={handleTotalLandChange} />
-              { invalidTotalLand && <span>फक्त अंक लिहा.</span>}
+              { invalidTotalLand && <span className="validation-msg">फक्त अंक लिहा!</span>}
             </div>
             <div className="input-container">
               <label htmlFor="input1">{gatNumberLabel}</label>
@@ -440,7 +459,7 @@ function Members() {
             <p id="success-message" className="success-message"></p>
             <div className="btn-container">
              <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec">Cancel</button>
+             <button type="submit" className="btn popup-btn-sec" onClick={handleCancel}>Cancel</button>
           </div>
           </div>
      </form>
@@ -454,7 +473,7 @@ function Members() {
     <RenderMenu />
     <div className="header-container" style={{marginLeft:'20%'}}>
         <div>
-            <h3>{memberList}</h3>
+            <h3 style={{color:'white'}}>{memberList}</h3>
         </div>
         <div className="btn-container">
             <Link onClick={openPopup}><button className="btn"><i className="fa-solid fa-plus icon"></i>{addMemberLabel}</button></Link>
