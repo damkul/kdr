@@ -193,3 +193,6 @@ select{
   background-color: rgb(255, 120, 120);
   color: black;
 }
+.long-btn{
+  width: 100%;
+}

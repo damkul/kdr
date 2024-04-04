@@ -5,7 +5,7 @@ import {get, post,put} from '../../context/rest';
 import Popup from '../common/popup'
 import { Option } from "antd/es/mentions";
 import { validateEmail,validatePhoneNumber } from "../common/validations";
-import {genderLabel,firstNameLabel,lastNameLabel,phoneNumberLabel,dareNumberLabel,totalLandLabel,updateMemberPopupLabel,addMemberPopupLabel,gatNumberLabel,addMemberLabel, emailLabel, usernamelabel, passwordLabel} from '../../language/marathi'
+import {updateAccountLabel,genderLabel,firstNameLabel,lastNameLabel,phoneNumberLabel, emailLabel, usernamelabel, passwordLabel} from '../../language/marathi'
 
 const FormContainer = ({text}) => {
     const boxStyle = {
@@ -177,8 +177,7 @@ const avatarStyle = {
               <Input type='password' value={password} onChange={handlePasswordChange}/>
             </div>
             <div className="btn-container">
-             <button type="submit" className="btn popup-btn">Update</button>
-             <button type="submit" className="btn popup-btn-sec">Cancel</button>
+             <button type="submit" className="long-btn login-button">{updateAccountLabel}</button>
           </div>
           </form>
         </div>

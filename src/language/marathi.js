@@ -38,6 +38,7 @@ export const updateBillLabel = "अपडेट बिल";
 
 // Account details
 export const accountDetails = "अकाउंट डिटेल्स";
+export const updateAccountLabel = "अपडेट अकाउंट डिटेल्स";
 
 
 

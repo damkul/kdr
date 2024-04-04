@@ -67,9 +67,9 @@ export const RenderRoutes = () => {
           anchor="left"
         >
           <Toolbar />
-          <Avatar  onClick= {() => navigate('/account')} sx={{width:80, height:80,marginLeft:'30%', cursor:'pointer'}}/>
+          <Avatar  onClick= {() => navigate('/account')} sx={{width:50, height:50,marginLeft:'30%', cursor:'pointer'}}/>
           <h3 style={{marginLeft:'28%', cursor:'pointer'}} onClick= {() => { navigate('/account')}}>{user.name}</h3>
-          <Toolbar />
+          {/* <Toolbar /> */}
           <List>
             {nav.map((item, index) => (
                item.name === "Login" || item.name === "sDetails" ? "" :
@@ -85,7 +85,7 @@ export const RenderRoutes = () => {
               </ListItem>
             ))}
           </List>
-          <Toolbar />
+          {/* <Toolbar /> */}
           <Button variant={"contained"} sx={buttonStyle} style={{color:"green"}} onClick={logout}>LOGOUT</Button>
         </Drawer>
         )

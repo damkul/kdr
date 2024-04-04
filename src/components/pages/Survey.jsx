@@ -361,7 +361,7 @@ const addSurvey = () => {
         { errorMsg && <div className="long-msg error-msg">सर्व्हे ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
         <div className="input-container first">
             <label htmlFor="input2">{surveyDescriptionLabel}</label>
-            <TextArea value={surveyDescription}  id="input2" rows="10" cols="15" className="form-input" onChange={handleDescriptionChange}/>
+            <TextArea value={surveyDescription}  id="input2" rows="2" cols="2" className="form-input" onChange={handleDescriptionChange}/>
           </div>
           <div className="input-container">
           <label htmlFor="input1">{surveyDateLabel}</label><br></br>
@@ -444,7 +444,7 @@ const updateSurvey = () => {
         { errorMsg && <div className="long-msg error-msg">सर्व्हे अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
         <div className="input-container first">
             <label htmlFor="input2">{surveyDescriptionLabel}</label>
-            <TextArea value={surveyDescription}  id="input2" rows="10" cols="15" className="form-input" onChange={handleDescriptionChange}/>
+            <TextArea value={surveyDescription}  id="input2" rows="2" cols="2" className="form-input" onChange={handleDescriptionChange}/>
           </div>
           <div className="input-container">
           <label htmlFor="input1">{surveyDateLabel}</label><br></br>
