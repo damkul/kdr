@@ -300,19 +300,19 @@ const MobileUser = () => {
         </Tooltip>
       ),
     },
-    {
-      title: "स्टेटस",
-      dataIndex: "mobileAppUserIsActive",
-      key: "mobileAppUserIsActive",
-      width: "5%",
-      // sorter: (a, b) => a.name > b.name,
-      render: (text) => (
-        <Tooltip title={text}>
-          {/* <Text ellipsis={true}>{text}</Text> */}
-          { text == 1 ?  <Badge status="success" text="Active" /> :  <Badge status="error" text="In-active" />}
-        </Tooltip>
-      ),
-    },
+    // {
+    //   title: "स्टेटस",
+    //   dataIndex: "mobileAppUserIsActive",
+    //   key: "mobileAppUserIsActive",
+    //   width: "5%",
+    //   // sorter: (a, b) => a.name > b.name,
+    //   render: (text) => (
+    //     <Tooltip title={text}>
+    //       {/* <Text ellipsis={true}>{text}</Text> */}
+    //       { text == 1 ?  <Badge status="success" text="Active" /> :  <Badge status="error" text="In-active" />}
+    //     </Tooltip>
+    //   ),
+    // },
     {
       title: "ऍक्शन",
       dataIndex: "actions",

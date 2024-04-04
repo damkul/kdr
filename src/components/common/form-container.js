@@ -118,7 +118,7 @@ const avatarStyle = {
         adminGender: gender,
         adminEmailId: email,
         adminUserName: username,
-        adminPassword: 'purveshpardeshi1'
+        adminPassword: password
     }
     var result = await put(`admin/1/profile`,formData);
     if (result) {

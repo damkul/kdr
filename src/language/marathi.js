@@ -22,6 +22,7 @@ export const addSurveyPopupLabel = "ऍड सर्व्हे";
 export const updateSurveyPopupLabel = "अपडेट सर्व्हे";
 export const surveyDescriptionLabel = "सर्व्हे डिस्क्रिपशन";
 export const surveyDateLabel = "सर्व्हेची तारीख";
+export const surveyStageLabel = "सर्व्हे पुढच्या स्टेजला पाठवा";
 
 // Mobile user page
 export const mobileUserList = "मोबाइल युजर्स लिस्ट";

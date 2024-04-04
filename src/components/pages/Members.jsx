@@ -6,7 +6,7 @@ import DataTable from '../common/dataTable';
 import {get, post,put,deleteItem} from '../../context/rest';
 import { Link} from "react-router-dom";
 import { Badge,Tooltip, Space,Typography, Button,Input, DatePicker,Spin} from "antd";
-import { FormOutlined, EditOutlined, DeleteOutlined, DownloadOutlined,FieldTimeOutlined,PrinterOutlined,CloseCircleOutlined,SearchOutlined } from "@ant-design/icons";
+import { FormOutlined, EditOutlined,MinusCircleOutlined,CloseCircleOutlined,PlusCircleOutlined } from "@ant-design/icons";
 import Search from "antd/es/transfer/search";
 import '../../css/survey.css'
 import '../../css/table.css'
@@ -127,6 +127,17 @@ function Members() {
        setMembers(members);
   }
 
+  async function toggleMemberStatus(member){
+    if (member.isActive == 1) {
+      var result = await put(`admin/1/member/${member.farmerId}/status/${0}`);
+    }
+    else if(member.isActive == 0){
+      var result = await put(`admin/1/member/${member.farmerId}/status/${1}`);
+    }
+    var members = await get('admin/1/member');
+    setMembers(members);
+  }
+
   const handleSearch = (searchInput) => {
     // Perform filtering logic based on your requirements
     const filteredData = members.filter(item =>
@@ -243,9 +254,9 @@ function Members() {
            <EditOutlined></EditOutlined>
           </a>
           </Tooltip>
-          <Tooltip title="Delete company">
-          <a href="javascript:;" onClick={() => deleteRecord(record)}>
-          <DeleteOutlined/>
+          <Tooltip title="Change Status Of member">
+          <a href="javascript:;" onClick={() => toggleMemberStatus(record)}>
+          {record.isActive == 1 ? <MinusCircleOutlined /> : <PlusCircleOutlined />}
           </a>
           </Tooltip>
         </Space>

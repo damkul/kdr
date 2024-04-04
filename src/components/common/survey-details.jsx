@@ -9,7 +9,7 @@ import Search from "antd/es/transfer/search";
 import '../../css/survey.css'
 import '../../css/table.css'
 import {capitalizeFirstLetter,validateNumbersOnly} from '../common/validations'
-import {memberList} from '../../language/marathi'
+import {memberList,surveyStageLabel} from '../../language/marathi'
 import Popup from '../common/popup'
 import { useLocation } from "react-router-dom";
 
@@ -21,18 +21,22 @@ const SurveyDetails = ({}) => {
 
     const location = useLocation();
     const survey = location.state;
-    const [surveyId,setSurveyId] = useState(survey.surveyId);
+    const [surveyId,setSurveyId] = useState();
+    const [originalSurvey,setSurvey] = useState(survey);
+
 
     const [searchText, setSearchText] = useState("");
     const [members,setMembers] = useState([]); 
     const [initialData,setInitialData] = useState([]); 
+    const [isPopupOpen,setIsPopupOpen] = useState(false); 
 
     useEffect(() => {
         async function fetchData() {
           try {
-           var result = await get(`admin/1/survey/${surveyId}/member`);
+           var result = await get(`admin/1/survey/${originalSurvey.surveyId}/member`);
         //    setIsDataLoaded(false);
           //  document.getElementById('spin').classList.remove('loader-overlay')
+            setSurveyId(survey.surveyId)
             setMembers(result);
             setInitialData(result);
           } catch (error) {
@@ -163,9 +167,9 @@ const SurveyDetails = ({}) => {
             // sorter: (a, b) => a.name > b.name,
             render: (text,record) => (
               <Tooltip title={"Survey Stage: "+text}>
-                 
+                 {console.log(text)}
                 {/* <Text ellipsis={true}>{text}</Text> */}
-                {record.billFileName ?
+                {survey.surveyStatus >= 2 ?
                 <a href="javascript:;" onClick={() => printSurveyBill(record)}>
                   <PrinterOutlined />
                 </a>
@@ -195,20 +199,32 @@ const SurveyDetails = ({}) => {
         // }
       ];
 
+      async function sendSurveyToNextStage(){
+        var result = await put(`admin/1/survey/${surveyId}/status/3`);
+        // console.log(result);
+         setIsPopupOpen(true);
+       }
 
   return (
     <div className="page">
 
     <RenderMenu />
    
-    <div className="header-container" style={{marginLeft:'20%'}}>
-       
-           <h3>{survey.surveyDescription} : {memberList}</h3>
-      
-       </div>
-  
+       <div className="header-container" style={{marginLeft:'20%'}}>
+        <div>
+        <h3>{originalSurvey.surveyDescription} : {memberList}</h3>
+        </div>
+            <div className="btn-container">
+              {/* <button className="btn"><i className="fa-solid fa-hourglass-half"></i> Generate Minutes</button> */}
+              { (originalSurvey.surveyStatus >= 2 && originalSurvey.surveyStatus < 4) ? <button className="btn" onClick={sendSurveyToNextStage}><i class="fa-solid fa-diagram-next" style={{marginRight:'1rem'}}></i>{surveyStageLabel}</button> : <button className="disabled" onClick={sendSurveyToNextStage} disabled><i class="fa-solid fa-diagram-next" style={{marginRight:'1rem'}}></i>{surveyStageLabel}</button>}
+                {/* <button className="btn" onClick={sendSurveyToNextStage}><i class="fa-solid fa-diagram-next" style={{marginRight:'1rem'}}></i>{surveyStageLabel}</button> */}
+            </div>
+        </div>
+        {
+          isPopupOpen && <p className="long-msg survey-Stage-msg"> सर्व्हे पुढच्या स्टेजला गेला आहे! </p>
+        }
    <DataTable dataSource={members} columns={columns}></DataTable>
-  
+ 
 </div>
   )
 }
