@@ -1,4 +1,5 @@
 export const BASE_URL = 'http://52.66.209.174:8080/api/kdp'
+// export const BASE_URL = 'http://3.110.214.33:8080/api/kdp'
 
 
 export const get = async (path) => {

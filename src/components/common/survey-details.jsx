@@ -12,12 +12,17 @@ import {capitalizeFirstLetter,validateNumbersOnly} from '../common/validations'
 import {memberList,surveyStageLabel} from '../../language/marathi'
 import Popup from '../common/popup'
 import { useLocation } from "react-router-dom";
+import { AuthData } from "../../auth/AuthWrapper";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 
 
 const SurveyDetails = ({}) => {
+
+  const { user } = AuthData();
+
+  var id = user.id
 
     const location = useLocation();
     const survey = location.state;
@@ -33,7 +38,8 @@ const SurveyDetails = ({}) => {
     useEffect(() => {
         async function fetchData() {
           try {
-           var result = await get(`admin/1/survey/${originalSurvey.surveyId}/member`);
+           var result = await get(`admin/${id}/survey/${originalSurvey.surveyId}/member`);
+           console.log("user in survey",user);
         //    setIsDataLoaded(false);
           //  document.getElementById('spin').classList.remove('loader-overlay')
             setSurveyId(survey.surveyId)
@@ -51,7 +57,7 @@ const SurveyDetails = ({}) => {
 
       async function printSurveyBill(rec) {
         console.log(rec.billFileName);
-        var res = await download(`admin/1/downloadbill/${rec.billFileName}`,rec.billFileName)
+        var res = await download(`admin/${id}/downloadbill/${rec.billFileName}`,rec.billFileName)
       }
 
     const handleSearch = (searchInput) => {
@@ -200,7 +206,7 @@ const SurveyDetails = ({}) => {
       ];
 
       async function sendSurveyToNextStage(){
-        var result = await put(`admin/1/survey/${surveyId}/status/3`);
+        var result = await put(`admin/${id}/survey/${surveyId}/status/3`);
         // console.log(result);
          setIsPopupOpen(true);
        }

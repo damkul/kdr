@@ -18,6 +18,8 @@
     background-color: #0C5546;
     color: white;
     cursor: pointer;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
 }
 .icon{
     margin-right: 0.7rem;

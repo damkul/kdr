@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { AuthData } from "../../auth/AuthWrapper"
 import { RenderMenu } from "../structure/RenderNavigation";
 import FormContainer from '../../components/common/form-container';
-import '../../css/table.css'
+import '../../css/table.css';
+
 export const Account = () => {
 
      const { user } = AuthData();

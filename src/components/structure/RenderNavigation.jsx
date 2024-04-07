@@ -85,7 +85,8 @@ export const RenderRoutes = () => {
               </ListItem>
             ))}
           </List>
-          {/* <Toolbar /> */}
+          <Toolbar />
+          <Toolbar />
           <Button variant={"contained"} sx={buttonStyle} style={{color:"green"}} onClick={logout}>LOGOUT</Button>
         </Drawer>
         )

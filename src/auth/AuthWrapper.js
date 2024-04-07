@@ -10,18 +10,19 @@ export const AuthData = () => useContext(AuthContext);
 
 export const AuthWrapper = () => {
      const navigate = useNavigate();
-     const [ user, setUser ] = useState({name: "", isAuthenticated: false})
+     const [ user, setUser ] = useState({id:"",name: "", isAuthenticated: false})
 
      const login = async (userName, password) => {
 
           // var loginData = { adminUserName: 'purveshpardeshi@gmail.com', adminPassword:'purveshpardeshi' }
           var loginData = { adminUserName: userName, adminPassword:password }
           
-          var data = await post('admin/login',loginData)
+          var data = await post('admin/login',loginData);
+          console.log(data);
           if(data){
                return new Promise((resolve, reject) => {
-                         setUser({name: data.adminFirstName, isAuthenticated: true})
-                         localStorage.setItem('user', JSON.stringify({name: data.adminFirstName, isAuthenticated: true}));
+                         setUser({id:data.adminId,name: data.adminFirstName, isAuthenticated: true})
+                         localStorage.setItem('user', JSON.stringify({id:data.adminId,name: data.adminFirstName, isAuthenticated: true}));
                          resolve("success");
                })
           }
@@ -40,6 +41,7 @@ export const AuthWrapper = () => {
      useEffect(() => {
           // Check if user data exists in localStorage
           const storedUser = localStorage.getItem('user');
+          console.log("user",user);
           if (storedUser) {
             // If user data exists, set it in state
             setUser(JSON.parse(storedUser));

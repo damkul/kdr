@@ -204,7 +204,18 @@ select{
   background-color: rgb(12, 85, 70,0.5); 
 }
 .disabled{
-  background-color: grey;
+  background-color: lightgray;
   padding: 0.5rem 1rem;
   border-radius: 0.2rem;
+  border: none;
+  outline: none;
+}
+
+.two-btn{
+  width: 45%;
+}
+.print-btn{
+  margin-top: 2rem;
+  color: white;
+  font-weight: bold;
 }

@@ -9,11 +9,16 @@ import Popup from '../common/popup';
 import {billingList,firstNameLabel,lastNameLabel,phoneNumberLabel,dareNumberLabel,totalLandLabel,statusLabel,actionsLabel,defaulterLabel,receivedPaymentLabel,receivedPaymentDateLabel,updateBillLabel} from '../../language/marathi'
 import '../../css/table.css'
 import moment from "moment";
+import { AuthData } from "../../auth/AuthWrapper";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 
 const Billing = () => {
+
+  const { user } = AuthData();
+
+  var id = JSON.parse(localStorage.getItem("user")).id;
 
   const [bills,setBills] = useState(); 
   const[isDataLoaded,setIsDataLoaded] = useState(true);
@@ -64,7 +69,7 @@ function formatDate(date){
   useEffect(() => {
     async function fetchData() {
       try {
-       var result = await get('admin/1/defaulter');
+       var result = await get(`admin/${id}/defaulter`);
        setIsDataLoaded(false);
       //  document.getElementById('spin').classList.remove('loader-overlay')
         setBills(result);
@@ -80,7 +85,7 @@ function formatDate(date){
 
   async function printSurveyBill() {
      setIsBillUpdated(false);
-    var res = await download(`admin/1/downloadbill/${fileName}`);
+    var res = await download(`admin/${id}/downloadbill/${fileName}`);
   }
   
   const columns = [
@@ -235,12 +240,12 @@ function formatDate(date){
       receivedPaymentDate: receivedPaymentDate,
       isDefaulter: isDefaulter
   }
-    var result = await put(`admin/1/defaulter/${billId}`,formData);
+    var result = await put(`admin/${id}/defaulter/${billId}`,formData);
     if (result) {
       setIsBillUpdated(true);
       setFileName(result.fileName);
       setShowPrintButton(true);
-      var result = await get('admin/1/defaulter');
+      var result = await get(`admin/${id}/defaulter`);
     }
     else{
       setErrorMsg(true);
@@ -274,10 +279,10 @@ function formatDate(date){
               </div> */}
             </div>
             <div className="btn-container">
-             <button type="submit" className="btn popup-btn">Save</button>
-             {/* <button type="submit" className="btn popup-btn-sec">Cancel</button> */}
+             <button type="submit" className="btn two-btn">Save</button>
+            
              {
-                showPrintButton &&  <button type="submit" className="btn popup-btn-sec" onClick={printSurveyBill}>Print</button>
+                showPrintButton ?  <button type="submit" className="btn popup-btn-sec two-btn" onClick={printSurveyBill}>Print</button> : <button type="submit" className="disabled popup-btn-sec two-btn print-btn" onClick={printSurveyBill}>Print</button>
              }
             
           </div>

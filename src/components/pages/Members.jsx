@@ -13,11 +13,16 @@ import '../../css/table.css'
 import Popup from '../common/popup';
 import {capitalizeFirstLetter,validateNumbersOnly,validatePhoneNumber} from '../common/validations';
 import {memberList,firstNameLabel,lastNameLabel,phoneNumberLabel,dareNumberLabel,totalLandLabel,updateMemberPopupLabel,addMemberPopupLabel,gatNumberLabel,addMemberLabel} from '../../language/marathi'
+import { AuthData } from "../../auth/AuthWrapper";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 
 function Members() {
+
+  const { user } = AuthData();
+
+  var id = JSON.parse(localStorage.getItem("user")).id;
 
   const [members,setMembers] = useState([]); 
   const [initialData,setInitialData] = useState([]); 
@@ -80,32 +85,33 @@ function Members() {
       
   }
   function handleTotalLandChange(event){
-    var isNumber = validateNumbersOnly(event.target.value);
-    if (isNumber) {
-      setTotalLand(event.target.value)
-      setInvalidTotalLand(false)
-    }
-    else{
-      setInvalidTotalLand(true);
-      setTotalLand();
-    }
+    setTotalLand(event.target.value)
+    // var isNumber = validateNumbersOnly(event.target.value);
+    // if (isNumber) {
+    //   setTotalLand(event.target.value)
+    //   setInvalidTotalLand(false)
+    // }
+    // else{
+    //   setInvalidTotalLand(true);
+    //   setTotalLand();
+    // }
       
   }
   function handleGatNumberChange(event){
-      
-      var isNumber = validateNumbersOnly(event.target.value);
-      if (isNumber) {
-        setGatNumber(event.target.value)
-      }
-      else{
-        setGatNumber();
-      }
+    setGatNumber(event.target.value)
+      // var isNumber = validateNumbersOnly(event.target.value);
+      // if (isNumber) {
+      //   setGatNumber(event.target.value)
+      // }
+      // else{
+      //   setGatNumber();
+      // }
   }
 
   useEffect(() => {
     async function fetchData() {
       try {
-       var result = await get('admin/1/member');
+       var result = await get(`admin/${id}/member`);
        setIsDataLoaded(false);
       //  document.getElementById('spin').classList.remove('loader-overlay')
         setMembers(result);
@@ -121,20 +127,20 @@ function Members() {
 
 
   async function deleteRecord(member){
-    var result = await deleteItem(`admin/1/member/${member.farmerId}`);
-    var members = await get('admin/1/member');
+    var result = await deleteItem(`admin/${id}/member/${member.farmerId}`);
+    var members = await get(`admin/${id}/member`);
        setIsDataLoaded(false);
        setMembers(members);
   }
 
   async function toggleMemberStatus(member){
     if (member.isActive == 1) {
-      var result = await put(`admin/1/member/${member.farmerId}/status/${0}`);
+      var result = await put(`admin/${id}/member/${member.farmerId}/status/${0}`);
     }
     else if(member.isActive == 0){
-      var result = await put(`admin/1/member/${member.farmerId}/status/${1}`);
+      var result = await put(`admin/${id}/member/${member.farmerId}/status/${1}`);
     }
-    var members = await get('admin/1/member');
+    var members = await get(`admin/${id}/member`);
     setMembers(members);
   }
 
@@ -158,11 +164,11 @@ function Members() {
       <Input.Search
         placeholder="नेम"
         // enterButton={<SearchOutlined/>}
-        // allowClear
+        allowClear
         value={searchText}
         onSearch={handleSearch}
         onChange={(e) => setSearchText(e.target.value)}
-        suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
+        // suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
       />
     </Space>
   );
@@ -332,11 +338,11 @@ function Members() {
     farmerGatNumber:gatNumber
   }
   
-    var result = await post('admin/1/member',formData);
+    var result = await post(`admin/${id}/member`,formData);
     
     if (result) {
       setIsMemberAdded(true);
-      var result = await get('admin/1/member');
+      var result = await get(`admin/${id}/member`);
       setMembers(result);
     }
     else{
@@ -356,11 +362,11 @@ function Members() {
     farmerGatNumber:gatNumber
   }
   
-    var result = await put(`admin/1/member/${memberId}`,formData);
+    var result = await put(`admin/${id}/member/${memberId}`,formData);
    
     if (result) {
       setIsMemberUpdated(true);
-      var result = await get('admin/1/member');
+      var result = await get(`admin/${id}/member`);
       setMembers(result);
     }
     else{
@@ -416,8 +422,8 @@ function Members() {
             </div>
             </div>
             <div className="btn-container">
-             <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button>
+             {isMemberAdded ? <button type="submit" className="disabled popup-btn long-btn" disabled>Save</button> : <button type="submit" className="btn popup-btn long-btn">Save</button>}
+             {/* <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button> */}
           </div>
           </div>
      </form>

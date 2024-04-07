@@ -12,10 +12,16 @@ import Popup from '../common/popup'
 import {capitalizeFirstLetter,validateNumbersOnly,validateEmail,validatePhoneNumber} from '../common/validations'
 import { usernamelabel,addMobileUserPopupLabel,firstNameLabel,lastNameLabel,phoneNumberLabel,emailLabel,genderLabel,dobLabel,passwordLabel,updateMobileUserPopupLabel,addMobileUserLabel } from "../../language/marathi";
 import moment from "moment";
+import { AuthData } from "../../auth/AuthWrapper";
+
 
 const { Text } = Typography;
 
 const MobileUser = () => {
+
+  const { user } = AuthData();
+
+  var uid = JSON.parse(localStorage.getItem("user")).id;
 
   const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
   const [spinner, setSpinner] = useState(false);  
@@ -149,7 +155,7 @@ const MobileUser = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-       var result = await get('admin/1/mobileappuser');
+       var result = await get(`admin/${uid}/mobileappuser`);
        console.log("companies",result);
        setIsDataLoaded(false);
         setMobileUsers(result);
@@ -175,10 +181,10 @@ const MobileUser = () => {
       mobileAppUserUserName: username,
       mobileAppUserPassword: password
   }
-  var result = await put(`admin/1/mobileappuser/${id}`,formData)
+  var result = await put(`admin/${uid}/mobileappuser/${id}`,formData)
       if (result) {
         setIsMobileUserUpdated(true);
-        var res = await get('admin/1/mobileappuser');
+        var res = await get(`admin/${uid}/mobileappuser`);
         setMobileUsers(res);
       }
       else{
@@ -198,10 +204,10 @@ const MobileUser = () => {
         mobileAppUserUserName: username,
         mobileAppUserPassword: password
     }
-    var result = await post('admin/1/mobileappuser',formData);
+    var result = await post(`admin/${uid}/mobileappuser`,formData);
    if (result) {
     setIsMobileUserAdded(true);
-    var res = await get('admin/1/mobileappuser');
+    var res = await get(`admin/${uid}/mobileappuser`);
     setMobileUsers(res);
    }
    else{
@@ -228,12 +234,12 @@ const MobileUser = () => {
       <Text style={{color:'#fff'}}>नेम</Text>
       <Input.Search
         placeholder="नेम"
-        // enterButton={<SearchOutlined  style={{color:'yellow'}}/>}
-        // allowClear
+        // enterButton={<SearchOutlined/>}
+        allowClear
         value={searchText}
         onSearch={handleSearch}
         onChange={(e) => setSearchText(e.target.value)}
-        suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
+         suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
       />
     </Space>
   );
@@ -336,8 +342,8 @@ const MobileUser = () => {
   ];
 
   async function deleteRecord(mobileUser){
-    var result = await deleteItem(`admin/1/mobileappuser/${mobileUser.mobileAppUserId}`);
-    var res = await get('admin/1/mobileappuser');
+    var result = await deleteItem(`admin/${uid}/mobileappuser/${mobileUser.mobileAppUserId}`);
+    var res = await get(`admin/${uid}/mobileappuser`);
     setMobileUsers(res);
   }
 
@@ -431,8 +437,8 @@ const MobileUser = () => {
            
             <p id="success-message" className="success-message"></p>
             <div className="btn-container">
-             <button type="submit" className="btn popup-btn">Save</button>
-             <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button>
+            {isMobileUserAdded ? <button type="submit" className="disabled popup-btn long-btn" disabled>Save</button> : <button type="submit" className="btn popup-btn long-btn">Save</button>}
+             {/* <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button> */}
           </div>
           </div>
      </form>

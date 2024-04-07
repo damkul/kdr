@@ -6,8 +6,15 @@ import Popup from '../common/popup'
 import { Option } from "antd/es/mentions";
 import { validateEmail,validatePhoneNumber } from "../common/validations";
 import {updateAccountLabel,genderLabel,firstNameLabel,lastNameLabel,phoneNumberLabel, emailLabel, usernamelabel, passwordLabel} from '../../language/marathi'
+import { AuthData } from "../../auth/AuthWrapper";
 
 const FormContainer = ({text}) => {
+
+  const { user } = AuthData();
+  console.log(user);
+
+  var id = JSON.parse(localStorage.getItem("user")).id;
+  
     const boxStyle = {
     // height:'80vh',
     width:'30vw',
@@ -87,7 +94,7 @@ const avatarStyle = {
   useEffect(() => {
     async function fetchData() {
       try {
-       var result = await get('admin/1/profile');
+       var result = await get(`admin/${id}/profile`);
         setUserData(result)
       } catch (error) {
         console.log(error);
@@ -120,7 +127,7 @@ const avatarStyle = {
         adminUserName: username,
         adminPassword: password
     }
-    var result = await put(`admin/1/profile`,formData);
+    var result = await put(`admin/${id}/profile`,formData);
     if (result) {
         var msg = document.getElementById('success-msg');
         msg.classList.remove('msg-hide');

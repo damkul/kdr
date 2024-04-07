@@ -6,7 +6,14 @@ import { RenderMenu } from "../structure/RenderNavigation";
 import HomePopup from "../common/homePopup";
 import Card from '@mui/material/Card';
 import {get, post,put,deleteItem} from '../../context/rest';
+import { AuthData } from "../../auth/AuthWrapper";
+
 export function Home() {
+
+  const { user } = AuthData();
+
+  var id = JSON.parse(localStorage.getItem("user")).id;
+
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupData, setPopupData] = useState(false);
   const[isDataLoaded,setIsDataLoaded] = useState(true);
@@ -69,7 +76,7 @@ export function Home() {
         useEffect(() => {
           async function fetchData() {
             try {
-             var result = await get('admin/1/homepage');
+             var result = await get(`admin/${id}/homepage`);
              console.log("companies",result);
              setIsDataLoaded(false);
             //  document.getElementById('spin').classList.remove('loader-overlay')

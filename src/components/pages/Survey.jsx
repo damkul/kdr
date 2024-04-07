@@ -13,12 +13,15 @@ import {surveyList,addSurveyPopupLabel,surveyDescriptionLabel,surveyDateLabel,kh
 import Popup from '../common/popup'
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { AuthData } from "../../auth/AuthWrapper";
 
 const { Text } = Typography;
 const { TextArea } = Input;
 function Survey() {
 
   const navigate = useNavigate();
+  const { user } = AuthData();
+  var id = JSON.parse(localStorage.getItem("user")).id;
 
   const[isDataLoaded,setIsDataLoaded] = useState(true);
   const [survey,setSurvey] = useState();
@@ -62,7 +65,7 @@ function Survey() {
   const handlePrintOpenPopup = async (survey) => {
     // setCurrentSurvey(survey)
     // setIsPrintPopupOpen(true);
-    var result = get("admin/1/downloadbill/Shubhankar_Ingale_Resume.pdf");
+    var result = get("admin/${id}/downloadbill/Shubhankar_Ingale_Resume.pdf");
   };
 
   const handleAddPopupCancel = () => {
@@ -88,7 +91,7 @@ function Survey() {
   useEffect(() => {
     async function fetchData() {
       try {
-       var result = await get('admin/1/survey');
+       var result = await get(`admin/${id}/survey`);
        setDataSource(result);
        console.log("survey",result);
        setIsDataLoaded(false);
@@ -144,8 +147,8 @@ function Survey() {
 
 
   async function deleteRecord(survey){
-    var result = await deleteItem(`admin/1/survey/${survey.surveyId}`);
-    var surveys = await get('admin/1/survey');
+    var result = await deleteItem(`admin/${id}/survey/${survey.surveyId}`);
+    var surveys = await get(`admin/${id}/survey`);
        setDataSource(surveys);
        console.log("survey",surveys);
        setIsDataLoaded(false);
@@ -338,10 +341,10 @@ async function handleAddFormSubmit(e) {
     surveySummerCropRate: summerCropRate
   }
 
-  var result = await post('admin/1/survey',formData);
+  var result = await post(`admin/${id}/survey`,formData);
   setIsSurveyAdded(true);
   if (result) {
-   var result = await get('admin/1/survey');
+   var result = await get(`admin/${id}/survey`);
    setSurvey(result);
   }
   else{
@@ -387,8 +390,8 @@ const addSurvey = () => {
          
           <p id="success-message" className="success-message"></p>
           <div className="btn-container">
-           <button type="submit" className="btn popup-btn">Save</button>
-           <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button>
+          {isSurveyAdded ? <button type="submit" className="disabled popup-btn long-btn" disabled>Save</button> : <button type="submit" className="btn popup-btn long-btn">Save</button>}
+           {/* <button type="submit" className="btn popup-btn-sec" onClick={handleAddPopupCancel}>Cancel</button> */}
         </div>
         </div>
    </form>
@@ -406,11 +409,11 @@ const  handleFormSubmit = async (e) => {
     surveyRabiCropRate: rabiCropRate,
     surveySummerCropRate: summerCropRate
   }
-  var result = await put(`admin/1/survey/${surveyId}`,formData);
+  var result = await put(`admin/${id}/survey/${surveyId}`,formData);
   
  if (result) {
   setIsSurveyUpdated(true);
-  var result = await get('admin/1/survey');
+  var result = await get(`admin/${id}/survey`);
   setSurvey(result);
  }
  else{
