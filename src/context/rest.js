@@ -102,31 +102,38 @@ export const download = async (path, filename = "kdr",) => {
       },
       // body: val, // Your request body
     });
-    console.log("response:",response);
+    
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     if (response.ok) {
-  
-      response.blob().then((blob) => {
-        let url = window.URL.createObjectURL(blob);
-        let a = document.createElement("a");
-        a.href = url;
-        let filenameFromServer =  response.headers.get('content-disposition');
-        console.log("filenameFromServer",filenameFromServer);
-        if (filenameFromServer) {
-          filename = filenameFromServer.split("=")[1];
-          filename = filename.substring(0,filename.length-1);
-         filename = filename.slice(1);
-  
-        } else {
-          filename = `${filename}`;
-        }
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        return response.json().then(data => {
+          return data;
+        });
+      } else {
+       
+          response.blob().then((blob) => {
+            let url = window.URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            let filenameFromServer =  response.headers.get('content-disposition');
+            console.log("filenameFromServer",filenameFromServer);
+            if (filenameFromServer) {
+              filename = filenameFromServer.split("=")[1];
+              filename = filename.substring(0,filename.length-1);
+             filename = filename.slice(1);
+      
+            } else {
+              filename = `${filename}`;
+            }
+            
+            a.download = filename;
+            a.click();
+          });
         
-        a.download = filename;
-        a.click();
-      });
-      return;
+      }
     }
     // const data = await response.json();
     // return data;

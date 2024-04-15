@@ -1,3 +1,4 @@
+// import 'bootstrap/dist/css/bootstrap.css';
 import React, { useState, useEffect } from "react";
 import CommonTable from '../../components/common/table';
 import {PageHeading} from '../../components/common/headings';
@@ -32,7 +33,8 @@ function Members() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
-  const [searchLastNameText, setSearchLastNameText] = useState("");
+  const [searchTextDareNumber, setSearchTextDareNumber] = useState("");
+  const [searchTextGatNumber, setSearchTextGatNumber] = useState("");
 
 
   const [isMemberAdded, setIsMemberAdded] = useState("");
@@ -145,7 +147,7 @@ function Members() {
   }
 
   const handleSearch = (searchInput) => {
-    // Perform filtering logic based on your requirements
+    // setSearchText(searchInput)
     const filteredData = members.filter(item =>
       item.farmerFirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
       item.farmerLastName.toLowerCase().includes(searchInput.toLowerCase())
@@ -156,10 +158,33 @@ function Members() {
     setSearchText('');
     setMembers(initialData); // Resetting to initial data when clearing search
   };
+  const handleDareNumberClear = () => {
+    setSearchTextDareNumber('')
+    setMembers(initialData); // Resetting to initial data when clearing search
+  };
+  const handleGatNumberClear = () => {
+    setSearchTextGatNumber('');
+    setMembers(initialData); // Resetting to initial data when clearing search
+  };
 
- 
+  const handleDareNumberSearch = (searchInput) => {
+    setSearchTextDareNumber(searchInput);
+    const filteredData = searchTextDareNumber ? members.filter(item =>
+      item.farmerDhareNumber.includes(searchInput)
+    ) : members;
+    setMembers(filteredData);
+  };
+  const handleGatSearch = value => {
+    setSearchTextGatNumber(value);
+    const filteredData = searchTextGatNumber ? members.filter(item =>
+      item.farmerGatNumber.includes(value)
+    ) : members;
+    setMembers(filteredData);
+  };
+
+
   const FilterByFirstNameInput = (
-    <Space style={{ display: "flex", justifyContent: "space-between" }}>
+    <Space style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
       <Text style={{color:'#fff'}}>नेम</Text>
       <Input.Search
         placeholder="नेम"
@@ -167,10 +192,46 @@ function Members() {
         allowClear
         value={searchText}
         onSearch={handleSearch}
-        onChange={(e) => setSearchText(e.target.value)}
-        // suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
+        onChange={e => setSearchText(e.target.value)}
+        />
+        </Space>
+  );
+  const FilterByDareNumber = (
+  <div>
+    <label htmlFor="">दारे नंबर</label>
+    <div style={{display:'flex'}}>
+      <Search
+      placeholder="Search name"
+      value={searchTextDareNumber}
+      onChange={e => handleDareNumberSearch(e.target.value)}
+    />
+    { searchTextDareNumber.length >0 && 
+    <button onClick={handleDareNumberClear} className="clear-btn">
+    <CloseCircleOutlined></CloseCircleOutlined>
+    </button>}
+    
+    </div>
+  </div>
+    
+  );
+  const FilterByGatNumber = (
+    <div>
+      <label htmlFor="">गट नंबर</label>
+        <div style={{display:'flex'}}>
+        <Search
+        placeholder="Search name"
+        value={searchTextGatNumber}
+        onChange={e => handleGatSearch(e.target.value)}
       />
-    </Space>
+      { searchTextGatNumber.length >0 && 
+     <button onClick={handleGatNumberClear} className="clear-btn">
+     <CloseCircleOutlined></CloseCircleOutlined>
+     </button>}
+ 
+    </div>
+    </div>
+    
+   
   );
 
   const columns = [
@@ -179,7 +240,7 @@ function Members() {
       // title:"फर्स्ट नेम",
       dataIndex: "farmerFirstName",
       key: "farmerFirstName",
-      width:"20%",
+      width:"15%",
       // sorter: (a, b) => a.name > b.name,
       render: (text,record) => (
         <Tooltip title={text}>
@@ -191,7 +252,7 @@ function Members() {
       title: "फोन नंबर",
       dataIndex: "farmerPhoneNumber",
       key: "farmerPhoneNumber",
-      width: "8%",
+      width: "7%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
@@ -200,10 +261,10 @@ function Members() {
       ),
     },
     {
-      title: "दारे नंबर",
+      title: FilterByDareNumber,
       dataIndex: "farmerDhareNumber",
       key: "farmerDhareNumber",
-      width: "8%",
+      width: "13%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
@@ -215,7 +276,7 @@ function Members() {
       title: "एकूण क्षेत्र",
       dataIndex: "farmarTotalLand",
       key: "farmarTotalLand",
-      width: "8%",
+      width: "5%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
@@ -224,10 +285,10 @@ function Members() {
       ),
     },
     {
-      title:"गट नंबर",
+      title:FilterByGatNumber,
       dataIndex: "farmerGatNumber",
       key: "farmerGatNumber",
-      width: "8%",
+      width: "13%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
         <Tooltip title={text}>
@@ -385,10 +446,17 @@ function Members() {
     return(
       <div>
       <form onSubmit={(e)=> handleAddFormSubmit(e)}> 
-          <div className="popup-header">
+          {/* <div className="popup-header">
           <label>{addMemberPopupLabel}</label>
           <button onClick={handleCloseAddPopup} className="btn popup-close-btn">X</button>
-          </div>
+          </div> */}
+          <div className="popup-header">
+                <h3 className='session-popup-header'>{addMemberPopupLabel}</h3>
+                <div  className="btn-close">
+                <button onClick={handleCloseAddPopup}>X</button>
+                </div>
+               
+            </div>
           <div className="popup-body">
             { isMemberAdded && <div className="long-msg">मेंबर ऍड झाला आहे!</div>}
             { errorMsg && <div className="long-msg error-msg">मेंबर ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
@@ -436,11 +504,16 @@ function Members() {
     return(
       <div>
       <form onSubmit={(e)=> handleFormSubmit(e)}> 
-          <div className="popup-header">
+          {/* <div className="popup-header">
           <label>{updateMemberPopupLabel}</label>
           <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
-          </div>
-          
+          </div> */}
+          <div className="popup-header">
+                <h3 className='session-popup-header'>{updateMemberPopupLabel}</h3>
+                <div  className="btn-close">
+                <button onClick={handleClosePopup}>X</button>
+                </div>
+                </div>
           <div className="popup-body">
           { isMemberUpdated && <div className="long-msg">मेंबर अपडेट झाला आहे!</div>}
           { errorMsg && <div className="long-msg error-msg">मेंबर अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}

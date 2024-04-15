@@ -23,6 +23,12 @@ export const updateSurveyPopupLabel = "अपडेट सर्व्हे";
 export const surveyDescriptionLabel = "सर्व्हे डिस्क्रिपशन";
 export const surveyDateLabel = "सर्व्हेची तारीख";
 export const surveyStageLabel = "सर्व्हे पुढच्या स्टेजला पाठवा";
+export const surveySeasonLabel = "सर्व्हे सिजन";
+export const surveySeasonKharifLabel = "खरीप";
+export const surveySeasonRabbiLabel = "रब्बी";
+export const surveySeasonSummerLabel = "उन्हाळी";
+export const surveySeasonUssRateLabel = "ऊस दर";
+export const surveySeasonBhusarRateLabel = "भुसार दर";
 
 // Mobile user page
 export const mobileUserList = "मोबाइल युजर्स लिस्ट";

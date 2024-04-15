@@ -246,6 +246,7 @@ function formatDate(date){
       setFileName(result.fileName);
       setShowPrintButton(true);
       var result = await get(`admin/${id}/defaulter`);
+      setBills(result);
     }
     else{
       setErrorMsg(true);
@@ -257,10 +258,16 @@ function formatDate(date){
     return(
       <div>
       <form onSubmit={(e)=> handleFormSubmit(e)}> 
-          <div className="popup-header">
+          {/* <div className="popup-header">
           <label>{updateBillLabel}</label>
           <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
-          </div>
+          </div> */}
+          <div className="popup-header">
+                <h3 className='session-popup-header'>{updateBillLabel}</h3>
+                <div  className="btn-close">
+                <button onClick={handleClosePopup}>X</button>
+                </div>
+                </div>
           <div className="popup-body">
           { isBillUpdated && <div className="long-msg">बील अपडेट झालं आहे!</div> }
           { errorMsg && <div className="long-msg error-msg">बील अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}

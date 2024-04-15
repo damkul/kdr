@@ -230,7 +230,7 @@ const MobileUser = () => {
 
 
   const FilterByFirstNameInput = (
-    <Space style={{ display: "flex", justifyContent: "space-between" }}>
+    <Space style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
       <Text style={{color:'#fff'}}>नेम</Text>
       <Input.Search
         placeholder="नेम"
@@ -376,10 +376,16 @@ const MobileUser = () => {
     return(
       <div>
       <form onSubmit={(e)=> handleAddFormSubmit(e)}> 
-          <div className="popup-header">
+          {/* <div className="popup-header">
           <label>{addMobileUserPopupLabel}</label>
           <button onClick={handleCloseAddPopup} className="btn popup-close-btn">X</button>
-          </div>
+          </div> */}
+           <div className="popup-header">
+                <h3 className='session-popup-header'>{addMobileUserPopupLabel}</h3>
+                <div  className="btn-close">
+                <button onClick={handleCloseAddPopup}>X</button>
+                </div>
+                </div>
           <div className="popup-body">
           { isMobileUserAdded && <div className="long-msg">मोबाईल युजर ऍड झाला आहे!</div>}
           { errorMsg && <div className="long-msg error-msg">मोबाईल युजर ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
@@ -450,10 +456,16 @@ const MobileUser = () => {
     return(
       <div>
       <form onSubmit={(e)=> handleFormSubmit(e)}> 
-          <div className="popup-header">
+          {/* <div className="popup-header">
           <label>{updateMobileUserPopupLabel}</label>
           <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
-          </div>
+          </div> */}
+          <div className="popup-header">
+                <h3 className='session-popup-header'>{updateMobileUserPopupLabel}</h3>
+                <div  className="btn-close">
+                <button onClick={handleClosePopup}>X</button>
+                </div>
+                </div>
           <div className="popup-body">
           { isMobileUserUpdated && <div className="long-msg">मोबाईल युजर अपडेट झाला आहे!</div>}
           { errorMsg && <div className="long-msg error-msg">मोबाईल युजर अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}

@@ -31,9 +31,13 @@ const SurveyDetails = ({}) => {
 
 
     const [searchText, setSearchText] = useState("");
+    const [searchTextDareNumber, setSearchTextDareNumber] = useState("");
+  const [searchTextGatNumber, setSearchTextGatNumber] = useState("");
     const [members,setMembers] = useState([]); 
     const [initialData,setInitialData] = useState([]); 
     const [isPopupOpen,setIsPopupOpen] = useState(false); 
+    const [isFileAvailable,setIsFileAvailable] = useState(false); 
+    const [memberName,setMemberName] = useState(false); 
 
     useEffect(() => {
         async function fetchData() {
@@ -58,10 +62,16 @@ const SurveyDetails = ({}) => {
       async function printSurveyBill(rec) {
         console.log(rec.billFileName);
         var res = await download(`admin/${id}/downloadbill/${rec.billFileName}`,rec.billFileName)
+        console.log("download response:",res);
+        if (res.errorMsg != undefined) {
+          setIsFileAvailable(true);
+          setMemberName(rec.farmerFirstName + " " + rec.farmerLastName)
+        }
       }
 
     const handleSearch = (searchInput) => {
-        // Perform filtering logic based on your requirements
+        // Perform filtering logic based on your requirements'
+        setSearchText(searchInput)
         const filteredData = members.filter(item =>
           item.farmerFirstName.toLowerCase().includes(searchInput.toLowerCase()) ||
           item.farmerLastName.toLowerCase().includes(searchInput.toLowerCase())
@@ -72,19 +82,96 @@ const SurveyDetails = ({}) => {
         setSearchText('');
         setMembers(initialData); // Resetting to initial data when clearing search
       };
+      const handleDareNumberClear = () => {
+        setSearchTextDareNumber('')
+        setMembers(initialData); // Resetting to initial data when clearing search
+      };
+      const handleGatNumberClear = () => {
+        setSearchTextGatNumber('');
+        setMembers(initialData); // Resetting to initial data when clearing search
+      };
+    
+      const handleDareNumberSearch = (searchInput) => {
+        setSearchTextDareNumber(searchInput);
+        const filteredData = searchTextDareNumber ? members.filter(item =>
+          item.farmerDhareNumber.includes(searchInput)
+        ) : members;
+        setMembers(filteredData);
+      };
+      const handleGatSearch = value => {
+        setSearchTextGatNumber(value);
+        const filteredData = searchTextGatNumber ? members.filter(item =>
+          item.farmerGatNumber.includes(value)
+        ) : members;
+        setMembers(filteredData);
+      };
+
+
+      const FilterByDareNumber = (
+        <div>
+          <label htmlFor="">दारे नंबर</label>
+          <div style={{display:'flex'}}>
+            <Search
+            placeholder="Search name"
+            value={searchTextDareNumber}
+            onChange={e => handleDareNumberSearch(e.target.value)}
+          />
+          { searchTextDareNumber.length >0 && 
+          <button onClick={handleDareNumberClear} className="clear-btn">
+          <CloseCircleOutlined></CloseCircleOutlined>
+          </button>}
+          
+          </div>
+        </div>
+          
+        );
+        const FilterByGatNumber = (
+          <div>
+            <label htmlFor="">गट नंबर</label>
+              <div style={{display:'flex'}}>
+              <Search
+              placeholder="Search name"
+              value={searchTextGatNumber}
+              onChange={e => handleGatSearch(e.target.value)}
+            />
+            { searchTextGatNumber.length >0 && 
+           <button onClick={handleGatNumberClear} className="clear-btn">
+           <CloseCircleOutlined></CloseCircleOutlined>
+           </button>}
+       
+          </div>
+          </div>
+          
+         
+        );
     
      
       const FilterByFirstNameInput = (
-        <Space style={{ display: "flex", justifyContent: "space-between" }}>
+        // <div>
+        //     <label htmlFor="">गट नंबर</label>
+        //       <div style={{display:'flex'}}>
+        //       <Search
+        //       placeholder="Search name"
+        //       value={searchText}
+        //       onChange={e => handleSearch(e.target.value)}
+        //     />
+        //     { searchText.length >0 && 
+        //    <button onClick={handleClear} className="clear-btn">
+        //    <CloseCircleOutlined></CloseCircleOutlined>
+        //    </button>}
+       
+        //   </div>
+        //   </div>
+         <Space style={{ display: "flex", justifyContent: "space-between" }}>
           <Text style={{color:'#fff'}}>नेम</Text>
           <Input.Search
             placeholder="नेम"
-            // enterButton={<SearchOutlined/>}
-            // allowClear
+            //  enterButton
+             allowClear
             value={searchText}
             onSearch={handleSearch}
             onChange={(e) => setSearchText(e.target.value)}
-            suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
+            // suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
           />
         </Space>
       );
@@ -117,7 +204,7 @@ const SurveyDetails = ({}) => {
           ),
         },
         {
-          title: "दारे नंबर",
+          title: FilterByDareNumber,
           dataIndex: "farmerDhareNumber",
           key: "farmerDhareNumber",
           width: "8%",
@@ -141,7 +228,7 @@ const SurveyDetails = ({}) => {
           ),
         },
         {
-          title:"गट नंबर",
+          title:FilterByGatNumber,
           dataIndex: "farmerGatNumber",
           key: "farmerGatNumber",
           width: "8%",
@@ -167,15 +254,16 @@ const SurveyDetails = ({}) => {
         },
         {
             title: "प्रिंट",
-            dataIndex: "surveyStatus",
-            key: "surveyStatus",
+            dataIndex: "billFileName",
+            key: "billFileName",
             width: "2.5%",
             // sorter: (a, b) => a.name > b.name,
             render: (text,record) => (
-              <Tooltip title={"Survey Stage: "+text}>
+              <Tooltip>
                  {console.log(text)}
                 {/* <Text ellipsis={true}>{text}</Text> */}
-                {survey.surveyStatus >= 2 ?
+                {/* {survey.surveyStatus >= 2 ? */}
+                {text.length > 0 ?
                 <a href="javascript:;" onClick={() => printSurveyBill(record)}>
                   <PrinterOutlined />
                 </a>
@@ -228,6 +316,9 @@ const SurveyDetails = ({}) => {
         </div>
         {
           isPopupOpen && <p className="long-msg survey-Stage-msg"> सर्व्हे पुढच्या स्टेजला गेला आहे! </p>
+        }
+        {
+          isFileAvailable && <p className="long-msg survey-Stage-msg survey-Stage-error-msg"> {memberName} यांच्यासाठी बीलाची फाइल बनली नाहीये त्यामुळे फाइल डाउनलोड होऊ शकत नाही.  </p>
         }
    <DataTable dataSource={members} columns={columns}></DataTable>
  

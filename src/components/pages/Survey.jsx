@@ -3,13 +3,13 @@ import { RenderMenu } from "../structure/RenderNavigation";
 import DataTable from '../common/dataTable';
 import {get, post, put,deleteItem} from '../../context/rest';
 import { Link} from "react-router-dom";
-import { Badge,Tooltip, Space,Typography, Button,Input, DatePicker,Spin } from "antd";
+import { Radio,Tooltip, Space,Typography, Button,Input, DatePicker,Spin } from "antd";
 import { FormOutlined, EditOutlined, DeleteOutlined, DownloadOutlined,FieldTimeOutlined,PrinterOutlined,SearchOutlined,CloseCircleOutlined } from "@ant-design/icons";
 import Search from "antd/es/transfer/search";
 import '../../css/survey.css'
 import '../../css/table.css'
 import {capitalizeFirstLetter,validateNumbersOnly} from '../common/validations'
-import {surveyList,addSurveyPopupLabel,surveyDescriptionLabel,surveyDateLabel,kharipPikLabel,rabiPikLabel,unhaliPikLabel,updateSurveyPopupLabel,addSurveyLabel} from '../../language/marathi'
+import {surveyList,addSurveyPopupLabel,surveyDescriptionLabel,surveyDateLabel,kharipPikLabel,rabiPikLabel,unhaliPikLabel,updateSurveyPopupLabel,addSurveyLabel, surveySeasonLabel, surveySeasonKharifLabel, surveySeasonRabbiLabel, surveySeasonSummerLabel, surveySeasonUssRateLabel, surveySeasonBhusarRateLabel} from '../../language/marathi'
 import Popup from '../common/popup'
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
@@ -26,6 +26,7 @@ function Survey() {
   const[isDataLoaded,setIsDataLoaded] = useState(true);
   const [survey,setSurvey] = useState();
   const [searchText, setSearchText] = useState("");
+  const [searchTextDate, setSearchTextDate] = useState("");
   const [dataSource, setDataSource] = useState();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isAddPopupOpen, setIsAddPopupOpen] = useState(false);
@@ -37,6 +38,7 @@ function Survey() {
   const [kharipCropRate,setKharipCropRate] = useState();
   const [rabiCropRate,setRabiCropRate] = useState();
   const [summerCropRate,setSummerCropRate] = useState();
+  const [value, setValue] = useState();
   const [surveyId,setSurveyId] = useState();
   const [errorMsg,setErrorMsg] = useState(false);
 
@@ -56,9 +58,10 @@ function Survey() {
     console.log(survey);
     setSurveyDescription(survey.surveyDescription);
     setSurveyDate(survey.surveyDate);
-    setKharipCropRate(survey.surveyKharifCropRate);
-    setRabiCropRate(survey.surveyRabiCropRate);
-    setSummerCropRate(survey.surveySummerCropRate);
+    setKharipCropRate(survey.surveyUssCropRate);
+    setRabiCropRate(survey.surveyBhusarCropRate);
+    setValue(survey.surveySeasonType);
+    // setSummerCropRate(survey.surveySummerCropRate);
     setSurveyId(survey.surveyId)
     setIsPopupOpen(true);
   };
@@ -163,14 +166,28 @@ function Survey() {
     );
     setSurvey(filteredData);
   };
+  const handleDateSearch = (searchInput) => {
+    // Perform filtering logic based on your requirements
+   console.log(searchInput);
+    // setSearchTextDate(searchInput);
+    const filteredData = survey.filter(item =>
+      // console.log(formatDate(item.surveyDate)),
+        formatDate(item.surveyDate) === formatDate(searchInput)
+    );
+    setSurvey(filteredData);
+  };
   const handleClear = () => {
     setSearchText('');
+    setSurvey(initialData); // Resetting to initial data when clearing search
+  };
+  const handleDateClear = () => {
+    setSearchTextDate('');
     setSurvey(initialData); // Resetting to initial data when clearing search
   };
 
  
   const FilterBySurveyDescriptionInput = (
-    <Space style={{ display: "flex", justifyContent: "space-between" }}>
+    <Space style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
       <Link style={{color:'#fff'}}>नेम</Link>
       <Input.Search
         placeholder="नेम"
@@ -182,6 +199,29 @@ function Survey() {
         suffix={searchText && <CloseCircleOutlined onClick={handleClear} />}
       />
     </Space>
+  );
+  const FilterBySurveyDate = (
+    <div>
+        <label>सर्व्हेची तारीख</label>
+        <div style={{display:'flex'}}>
+          <Input.Search
+            placeholder="सर्व्हेची तारीख"
+            // enterButton={<SearchOutlined/>}
+            allowClear
+            value={searchTextDate}
+            onSearch={handleDateSearch}
+            onChange={(e) => setSearchTextDate(e.target.value)}
+            // suffix={searchTextDate && <CloseCircleOutlined onClick={handleDateClear} />}
+          />
+          { searchTextDate.length >0 && 
+      <button onClick={handleDateClear} className="clear-btn">
+        <CloseCircleOutlined cleOutlined></CloseCircleOutlined>
+        </button>}
+        </div>
+    </div>
+   
+
+
   );
 
   function  handleClick(record) {
@@ -204,20 +244,20 @@ function Survey() {
       ),
     },
     {
-      title: "सर्व्हेची तारीख",
+      title: FilterBySurveyDate,
       dataIndex: "surveyDate",
       key: "surveyDate",
-      width:"10%",
+      width:"13%",
       render: (text) => (
         <Tooltip title={text}>
-          <Text ellipsis={true}>{formatDate(text)}</Text>
+          <Text ellipsis={true}>{text}</Text>
         </Tooltip>
       ),
     },
     {
-      title: "खरीप पीक दर",
-      dataIndex: "surveyKharifCropRate",
-      key: "surveyKharifCropRate",
+      title: "ऊस दर",
+      dataIndex: "surveyUssCropRate",
+      key: "surveyUssCropRate",
       width: "8%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
@@ -227,9 +267,9 @@ function Survey() {
       ),
     },
     {
-      title: "रब्बी पीक दर",
-      dataIndex: "surveyRabiCropRate",
-      key: "surveyRabiCropRate",
+      title: "भुसार दर",
+      dataIndex: "surveyBhusarCropRate",
+      key: "surveyBhusarCropRate",
       width: "8%",
       // sorter: (a, b) => a.name > b.name,
       render: (text) => (
@@ -238,18 +278,18 @@ function Survey() {
         </Tooltip>
       ),
     },
-    {
-      title: "उन्हाळी पीक दर",
-      dataIndex: "surveySummerCropRate",
-      key: "surveySummerCropRate",
-      width: "8%",
-      // sorter: (a, b) => a.name > b.name,
-      render: (text) => (
-        <Tooltip title={text}>
-          <Text ellipsis={true}>{text}</Text>
-        </Tooltip>
-      ),
-    },
+    // {
+    //   title: "उन्हाळी पीक दर",
+    //   dataIndex: "surveySummerCropRate",
+    //   key: "surveySummerCropRate",
+    //   width: "8%",
+    //   // sorter: (a, b) => a.name > b.name,
+    //   render: (text) => (
+    //     <Tooltip title={text}>
+    //       <Text ellipsis={true}>{text}</Text>
+    //     </Tooltip>
+    //   ),
+    // },
     {
       title: "ऍक्शन",
       dataIndex: "actions",
@@ -333,14 +373,18 @@ function handleSummerRateChange(event){
 
 async function handleAddFormSubmit(e) {
   e.preventDefault();
+
   var formData = {
     surveyDescription: surveyDescription,
     surveyDate: formatDateMM(surveyDate),
-    surveyKharifCropRate: kharipCropRate,
-    surveyRabiCropRate: rabiCropRate,
-    surveySummerCropRate: summerCropRate
+    surveySeasonType: value,
+    surveyUssCropRate: kharipCropRate == 0 ? -1 : kharipCropRate,
+    surveyBhusarCropRate: rabiCropRate == 0 ? -1 : rabiCropRate
+    // surveyKharifCropRate: kharipCropRate,
+    // surveyRabiCropRate: rabiCropRate,
+    // surveySummerCropRate: summerCropRate
   }
-
+  console.log("kharipCropRate 2",formData);
   var result = await post(`admin/${id}/survey`,formData);
   setIsSurveyAdded(true);
   if (result) {
@@ -351,14 +395,25 @@ async function handleAddFormSubmit(e) {
     setErrorMsg(true);
   }
 }
+
+
+  const onChange = (e) => {
+    console.log('radio checked', e.target.value);
+    setValue(e.target.value);
+  };
+
+
 const addSurvey = () => {
   return(
     <div>
     <form onSubmit={(e)=> handleAddFormSubmit(e)}> 
         <div className="popup-header">
-        <label>{addSurveyPopupLabel}</label>
-        <button onClick={handleCloseAddPopup} className="btn popup-close-btn">X</button>
-        </div>
+                <h3 className='session-popup-header'>{addSurveyPopupLabel}</h3>
+                <div  className="btn-close">
+                <button onClick={handleCloseAddPopup}>X</button>
+                </div>
+               
+            </div>
         <div className="popup-body">
         { isSurveyAdded && <div className="long-msg">सर्व्हे ऍड झाला आहे!</div>}
         { errorMsg && <div className="long-msg error-msg">सर्व्हे ऍड होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
@@ -368,24 +423,34 @@ const addSurvey = () => {
           </div>
           <div className="input-container">
           <label htmlFor="input1">{surveyDateLabel}</label><br></br>
-            <DatePicker htmlFor="input1" size="100" onChange={(e) => setSurveyDate(e.toDate())}></DatePicker>
+            <DatePicker htmlFor="input1" onChange={(e) => setSurveyDate(e.toDate())}  style={{width:'42.5rem'}}></DatePicker>
           </div>
           <div className="rate-container">
-          <div className="input-container">
-            <label htmlFor="input1">{kharipPikLabel}</label>
-            <Input type='text' value={kharipCropRate}  id="input1" onChange={handleKharipRateChange} />
+            <div className="input-container">
+            <label htmlFor="input1">{surveySeasonLabel}</label><br></br>
+            <Radio.Group onChange={onChange} value={value}  style={{marginTop:'0.5rem'}}>
+              <Radio value={1}>{surveySeasonKharifLabel}</Radio>
+              <Radio value={2}>{surveySeasonRabbiLabel}</Radio>
+              <Radio value={3}>{surveySeasonSummerLabel}</Radio>
+            </Radio.Group>
+            </div>
+          </div>
+          <div style={{display:'flex'}}>
+          <div className="input-container" style={{width:'50%'}}>
+            <label htmlFor="input1">{surveySeasonUssRateLabel}</label>
+            <Input type='text' value={kharipCropRate} size="middle" onChange={handleKharipRateChange} className="form-control"/>
             { invalidKharifCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
-          <div className="input-container">
-            <label htmlFor="input1">{rabiPikLabel}</label>
-            <Input type='text' value={rabiCropRate}  id="input1" onChange={handleRabiRateChange} />
+          <div className="input-container" style={{width:'50%'}}>
+            <label htmlFor="input1">{surveySeasonBhusarRateLabel}</label>
+            <Input type='text' value={rabiCropRate} size="middle" onChange={handleRabiRateChange} />
             { invalidRabiRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
-          <div className="input-container">
+          {/* <div className="input-container">
             <label htmlFor="input1">{unhaliPikLabel}</label>
             <Input type='text' value={summerCropRate}  id="input1" onChange={handleSummerRateChange}/>
             { invalidSummerCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
-          </div>
+          </div> */}
           </div>
          
           <p id="success-message" className="success-message"></p>
@@ -405,9 +470,12 @@ const  handleFormSubmit = async (e) => {
   var formData = {
     surveyDescription: surveyDescription,
     surveyDate: formatDateMM(surveyDate),
-    surveyKharifCropRate: kharipCropRate,
-    surveyRabiCropRate: rabiCropRate,
-    surveySummerCropRate: summerCropRate
+    surveySeasonType: value,
+    surveyUssCropRate: kharipCropRate == 0 ? -1 : kharipCropRate,
+    surveyBhusarCropRate: rabiCropRate == 0 ? -1 : rabiCropRate
+    // surveyKharifCropRate: kharipCropRate,
+    // surveyRabiCropRate: rabiCropRate,
+    // surveySummerCropRate: summerCropRate
   }
   var result = await put(`admin/${id}/survey/${surveyId}`,formData);
   
@@ -438,10 +506,17 @@ const updateSurvey = () => {
       
     <div>
        <form onSubmit={(e)=> handleFormSubmit(e)} id="subTemplateForm"> 
-        <div className="popup-header">
+        {/* <div className="popup-header">
           <label>{updateSurveyPopupLabel}</label>
         <button onClick={handleClosePopup} className="btn popup-close-btn">X</button>
-        </div>
+        </div> */}
+        <div className="popup-header">
+                <h4 className='session-popup-header'>{updateSurveyPopupLabel}</h4>
+                <div  className="btn-close">
+                <button onClick={handleClosePopup}>X</button>
+                </div>
+               
+            </div>
         <div className="popup-body">
         { isSurveyUpdated && <div className="long-msg">सर्व्हे अपडेट झाला आहे!</div>}
         { errorMsg && <div className="long-msg error-msg">सर्व्हे अपडेट होऊ शकत नाही. कृपया थोड्या वेळाने प्रयत्न करा!!</div>}
@@ -451,30 +526,40 @@ const updateSurvey = () => {
           </div>
           <div className="input-container">
           <label htmlFor="input1">{surveyDateLabel}</label><br></br>
-            <DatePicker htmlFor="input1" size="100" onChange={(e) => setSurveyDate(e.toDate())} defaultValue={moment(surveyDate)}></DatePicker>
+            <DatePicker htmlFor="input1" size="100" onChange={(e) => setSurveyDate(e.toDate())} defaultValue={moment(surveyDate)} style={{width:'42.2rem'}}></DatePicker>
           </div>
           <div className="rate-container">
-          <div className="input-container">
-            <label htmlFor="input1">{kharipPikLabel}</label>
-            <Input type='text' value={kharipCropRate}  id="input1" onChange={handleKharipRateChange} />
+            <div className="input-container">
+            <label htmlFor="input1">{surveySeasonLabel}</label><br></br>
+            <Radio.Group onChange={onChange} value={value}  style={{marginTop:'0.5rem'}}>
+              <Radio value={1}>{surveySeasonKharifLabel}</Radio>
+              <Radio value={2}>{surveySeasonRabbiLabel}</Radio>
+              <Radio value={3}>{surveySeasonSummerLabel}</Radio>
+            </Radio.Group>
+            </div>
+          </div>
+          <div style={{display:'flex'}}>
+          <div className="input-container" style={{width:'50%'}}>
+            <label htmlFor="input1">{surveySeasonUssRateLabel}</label>
+            <Input type='text' value={kharipCropRate} size="middle" onChange={handleKharipRateChange} className="form-control"/>
             { invalidKharifCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
-          <div className="input-container">
-            <label htmlFor="input1">{rabiPikLabel}</label>
-            <Input type='text' value={rabiCropRate}  id="input1" onChange={handleRabiRateChange} />
+          <div className="input-container" style={{width:'50%'}}>
+            <label htmlFor="input1">{surveySeasonBhusarRateLabel}</label>
+            <Input type='text' value={rabiCropRate} size="middle" onChange={handleRabiRateChange} />
             { invalidRabiRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
           </div>
-          <div className="input-container">
+          {/* <div className="input-container">
             <label htmlFor="input1">{unhaliPikLabel}</label>
             <Input type='text' value={summerCropRate}  id="input1" onChange={handleSummerRateChange}/>
             { invalidSummerCropRate && <span className="validation-msg">फक्त अंक लिहा!</span>}
-          </div>
+          </div> */}
           </div>
          
           <p id="success-message" className="success-message"></p>
           <div className="btn-container">
-           <button type="submit" className="btn popup-btn">Save</button>
-           <button type="submit" className="btn popup-btn-sec" onClick={handleCancel}>Cancel</button>
+           <button type="submit" className="btn long-btn">Save</button>
+           {/* <button type="submit" className="btn popup-btn-sec" onClick={handleCancel}>Cancel</button> */}
         </div>
         </div>
       </form>
