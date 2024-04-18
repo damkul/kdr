@@ -33,7 +33,7 @@ function Members() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
-  const [searchTextDareNumber, setSearchTextDareNumber] = useState("");
+  const [searchTextDareNumber, setSearchTextDareNumber] = useState('');
   const [searchTextGatNumber, setSearchTextGatNumber] = useState("");
 
 
@@ -167,13 +167,7 @@ function Members() {
     setMembers(initialData); // Resetting to initial data when clearing search
   };
 
-  const handleDareNumberSearch = (searchInput) => {
-    setSearchTextDareNumber(searchInput);
-    const filteredData = searchTextDareNumber ? members.filter(item =>
-      item.farmerDhareNumber.includes(searchInput)
-    ) : members;
-    setMembers(filteredData);
-  };
+
   const handleGatSearch = value => {
     setSearchTextGatNumber(value);
     const filteredData = searchTextGatNumber ? members.filter(item =>
@@ -181,13 +175,21 @@ function Members() {
     ) : members;
     setMembers(filteredData);
   };
+  const handleDareSearch = value => {
+     //setSearchTextDareNumber(value);
+    // console.log(searchTextDareNumber);
+    const filteredData = searchTextDareNumber ? members.filter(item =>
+      item.farmerDhareNumber == value
+    ) : members;
+    setMembers(filteredData);
+  };
 
 
   const FilterByFirstNameInput = (
     <Space style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
-      <Text style={{color:'#fff'}}>नेम</Text>
+      <Text style={{color:'#fff'}}>दारे नंबर</Text>
       <Input.Search
-        placeholder="नेम"
+        placeholder="दारे नंबर"
         // enterButton={<SearchOutlined/>}
         allowClear
         value={searchText}
@@ -197,21 +199,38 @@ function Members() {
         </Space>
   );
   const FilterByDareNumber = (
-  <div>
-    <label htmlFor="">दारे नंबर</label>
-    <div style={{display:'flex'}}>
-      <Search
-      placeholder="Search name"
-      value={searchTextDareNumber}
-      onChange={e => handleDareNumberSearch(e.target.value)}
-    />
-    { searchTextDareNumber.length >0 && 
-    <button onClick={handleDareNumberClear} className="clear-btn">
-    <CloseCircleOutlined></CloseCircleOutlined>
-    </button>}
-    
-    </div>
-  </div>
+    <div style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
+      <label htmlFor="">गट नंबर</label>
+      <div style={{display:'flex'}}>
+      <Input.Search
+        placeholder="नेम"
+        // enterButton={<SearchOutlined/>}
+        allowClear
+        value={searchTextDareNumber}
+        onSearch={handleDareSearch}
+        onChange={e => setSearchTextDareNumber(e.target.value)}
+        />
+         { searchTextDareNumber.length >0 && 
+            <button onClick={handleDareNumberClear} className="clear-btn">
+                <CloseCircleOutlined></CloseCircleOutlined>
+            </button>}
+      </div>
+        </div>
+  //   <div>
+  //   <label htmlFor="">गट नंबर</label>
+  //     <div style={{display:'flex'}}>
+  //     <Search
+  //     placeholder="Search name"
+  //     value={searchTextDareNumber}
+  //     onChange={e => handleDareSearch(e.target.value)}
+  //   />
+  //   { searchTextDareNumber.length >0 && 
+  //  <button onClick={handleDareNumberClear} className="clear-btn">
+  //  <CloseCircleOutlined></CloseCircleOutlined>
+  //  </button>}
+
+  // </div>
+  // </div>
     
   );
   const FilterByGatNumber = (
@@ -219,7 +238,7 @@ function Members() {
       <label htmlFor="">गट नंबर</label>
         <div style={{display:'flex'}}>
         <Search
-        placeholder="Search name"
+        placeholder="गट नंबर"
         value={searchTextGatNumber}
         onChange={e => handleGatSearch(e.target.value)}
       />

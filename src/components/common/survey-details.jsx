@@ -162,7 +162,7 @@ const SurveyDetails = ({}) => {
        
         //   </div>
         //   </div>
-         <Space style={{ display: "flex", justifyContent: "space-between" }}>
+         <Space style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
           <Text style={{color:'#fff'}}>नेम</Text>
           <Input.Search
             placeholder="नेम"
