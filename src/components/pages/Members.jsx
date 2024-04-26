@@ -187,9 +187,9 @@ function Members() {
 
   const FilterByFirstNameInput = (
     <Space style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
-      <Text style={{color:'#fff'}}>दारे नंबर</Text>
+      <Text style={{color:'#fff'}}>नेम</Text>
       <Input.Search
-        placeholder="दारे नंबर"
+        placeholder="नेम"
         // enterButton={<SearchOutlined/>}
         allowClear
         value={searchText}
@@ -200,10 +200,10 @@ function Members() {
   );
   const FilterByDareNumber = (
     <div style={{ display: "flex", justifyContent: "space-between",flexDirection:'column',alignItems:'flex-start' }}>
-      <label htmlFor="">गट नंबर</label>
+      <label htmlFor="">दारे नंबर</label>
       <div style={{display:'flex'}}>
       <Input.Search
-        placeholder="नेम"
+        placeholder="दारे नंबर"
         // enterButton={<SearchOutlined/>}
         allowClear
         value={searchTextDareNumber}

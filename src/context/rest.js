@@ -1,5 +1,6 @@
-// export const BASE_URL = 'http://52.66.209.174:8080/api/kdp'
- export const BASE_URL = 'http://3.110.214.33:8080/api/kdp'
+ //export const BASE_URL = 'http://52.66.209.174:8080/api/kdp' // Centos instance(currently terminated)
+//  export const BASE_URL = 'http://13.127.243.194:8080/api/kdp' //kdr ubuntu instance 
+  export const BASE_URL = 'http://3.110.214.33:8080/api/kdp'
 
 
 export const get = async (path) => {
